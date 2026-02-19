@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 from supabase import create_client, Client
 from typing import Optional, Dict, Any
@@ -34,7 +34,7 @@ class SupabaseManager:
                 "run_name": run_name,
                 "target_repo": target_repo,
                 "status": "PENDING",
-                "created_at": datetime.utcnow().isoformat()
+                "created_at": datetime.now(timezone.utc).isoformat()
             }
             response = self.client.table("agent_runs").insert(data).execute()
             if response.data:
@@ -54,7 +54,7 @@ class SupabaseManager:
                 "node_name": node,
                 "log_type": log_type,
                 "content": content,
-                "created_at": datetime.utcnow().isoformat()
+                "created_at": datetime.now(timezone.utc).isoformat()
             }
             self.client.table("node_logs").insert(data).execute()
         except Exception as e:

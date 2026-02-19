@@ -11,7 +11,9 @@ from dotenv import load_dotenv
 
 # Ensure we can import from backend package even if running from inside backend folder
 # This adds the parent directory of 'backend' (i.e., the project root) to sys.path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if PROJECT_ROOT not in sys.path:
+    sys.path.append(PROJECT_ROOT)
 
 # Load environment variables — always use backend/.env regardless of CWD
 _env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
@@ -25,7 +27,11 @@ app = FastAPI(title="RIFT 2026 CI/CD Healing Backend")
 # ── CORS ──────────────────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for hackathon purposes
+    allow_origins=[
+        "https://thearbiter.vercel.app",
+        "http://localhost:5173",
+        "http://localhost:3000"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -110,20 +116,13 @@ async def run_healing_workflow(request: HealingRequest, run_id: str = None):
 
         duration = final_state.get('total_time', 0.0)
         fixes = final_state.get('fixes_applied', [])
-        commit_count = len(fixes)
-        if final_state.get('final_status') == "PASSED":
-            base_score = 100
-            speed_bonus = 10 if duration < 300 else 0
-            efficiency_penalty = max(0, (commit_count - 20) * 2) if commit_count > 20 else 0
-            final_score = base_score + speed_bonus - efficiency_penalty
-        else:
-            base_score = 0
-            speed_bonus = 0
-            efficiency_penalty = 0
-            final_score = 0
-
-        # Update state with the calculated score so it matches
-        final_state['final_score'] = final_score
+        
+        # Scoring is now handled inside the graph by scoring_node
+        final_score = final_state.get('final_score', 0)
+        breakdown = final_state.get('current_analysis', {}).get('scoring_breakdown', {})
+        base_score = breakdown.get('base_score', 0)
+        speed_bonus = breakdown.get('speed_bonus', 0)
+        efficiency_penalty = breakdown.get('efficiency_penalty', 0)
 
         # Save Results
         result_entry = {
@@ -133,14 +132,13 @@ async def run_healing_workflow(request: HealingRequest, run_id: str = None):
             "branch_name": _branch_name(final_state['team_name'], final_state['leader_name']),
             "final_status": final_state.get('final_status', 'UNKNOWN'),
             "total_time": duration,
-            "final_score": final_state.get('final_score', 0),
+            "final_score": final_score,
             "base_score": base_score,
             "speed_bonus": speed_bonus,
             "efficiency_penalty": efficiency_penalty,
             "fixes_applied": fixes,
             "timeline": final_state.get('timeline', []),
             "retry_count": final_state.get('retry_count', 0),
-            "completed_at": datetime.now().isoformat(),
             "completed_at": datetime.now().isoformat(),
             "started_at": start_time.isoformat(),
         }

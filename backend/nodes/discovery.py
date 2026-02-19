@@ -1,23 +1,14 @@
 import os
-import shutil
-import glob
-import stat
 from git import Repo
 from backend.state import AgentState
-
 from backend.logger import get_logger
+from backend.utils.file_utils import cleanup_directory
 
 logger = get_logger("discovery_node")
 
 # Use absolute path for temp_repos relative to project root (3 levels up from nodes/discovery.py)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 WORK_DIR = os.path.join(BASE_DIR, "temp_repos")
-
-
-def _remove_readonly(func, path, _):
-    """Force-delete read-only files on Windows (needed for .git dirs)."""
-    os.chmod(path, stat.S_IWRITE)
-    func(path)
 
 
 def discovery_node(state: AgentState) -> AgentState:
@@ -34,41 +25,8 @@ def discovery_node(state: AgentState) -> AgentState:
         f"{team_name}_{os.path.basename(repo_url.rstrip('/')).replace('.git', '')}"
     )
 
-    # ── Ironclad Cleanup: handles Docker root-owned __pycache__ files ──────────
-    # We want to ensure the directory is absolutely gone before cloning.
-    if os.path.exists(repo_dir):
-        print(f"Discovery: Cleaning up existing directory {repo_dir}...")
-        
-        # Method 1: Standard Python shutil
-        try:
-            shutil.rmtree(repo_dir, onerror=_remove_readonly)
-        except Exception as e:
-            print(f"Discovery: shutil.rmtree failed ({e}), trying subprocess...")
-
-        # Method 2: Platform-specific subprocess (Force kill)
-        if os.path.exists(repo_dir):
-            try:
-                import subprocess
-                if os.name == 'nt':
-                    # Windows: use rmdir /s /q
-                    subprocess.run(["rmdir", "/s", "/q", repo_dir], shell=True, check=False)
-                else:
-                    # Linux/Docker: use sudo rm -rf to handle root-owned files from Docker
-                    # Note: The backend user (ubuntu) must have passwordless sudo for this to work.
-                    print(f"Discovery: Attempting sudo rm -rf {repo_dir}...")
-                    subprocess.run(["sudo", "rm", "-rf", repo_dir], check=False)
-                
-                print(f"Discovery: subprocess cleanup attempted.")
-            except Exception as rm_err:
-                print(f"Discovery: WARNING - Subprocess cleanup failed: {rm_err}")
-    
-    # Verify cleanup (Final check)
-    if os.path.exists(repo_dir):
-        print(f"CRITICAL: Failed to clean {repo_dir}. Cloning might fail or use stale files.")
-        # Attempt one last absolute force kill?
-        # No, if sudo rm -rf failed, we are likely blocked.
-    else:
-        print(f"Discovery: Cleanup successful.")
+    # ── Cleanup ──────────────────────────────────────────────────────────────
+    cleanup_directory(repo_dir)
 
     os.makedirs(WORK_DIR, exist_ok=True)
 
