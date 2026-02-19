@@ -253,6 +253,18 @@ def fixer_node(state: AgentState) -> AgentState:
                 fix_action = f'fix the {analysis.get("bug_type", "error").lower()} error'
 
             
+        # ── Workspace Isolation: Backup original file to /tmp ───────────────
+        import shutil
+        import tempfile
+        try:
+            backup_dir = os.path.join(tempfile.gettempdir(), "RIFT_BACKUPS")
+            os.makedirs(backup_dir, exist_ok=True)
+            backup_file = os.path.join(backup_dir, f"{os.path.basename(file_full_path)}.{int(time.time())}.bak")
+            shutil.copy2(file_full_path, backup_file)
+            print(f"Fixer: Workspace Isolation - Backup created at {backup_file}")
+        except Exception as backup_err:
+            print(f"Fixer: Backup failed (non-blocking): {backup_err}")
+
         # Apply Fix
         with open(file_full_path, "w", encoding="utf-8") as f:
             f.write(fixed_code)

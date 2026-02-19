@@ -5,9 +5,11 @@ from backend.state import AgentState
 
 
 def _make_branch_name(team_name: str, leader_name: str) -> str:
-    team = team_name.upper().replace(" ", "_").replace("-", "_")
-    leader = leader_name.upper().replace(" ", "_").replace("-", "_")
-    return f"{team}_{leader}_AI_Fix"
+    import re
+    def sanitize(s):
+        return re.sub(r"[^A-Z0-9_]", "", s.upper().replace(" ", "_").replace("-", "_"))
+    
+    return f"{sanitize(team_name)}_{sanitize(leader_name)}_AI_Fix"
 
 
 def git_node(state: AgentState) -> AgentState:
@@ -59,9 +61,11 @@ def git_node(state: AgentState) -> AgentState:
         return state
 
     try:
-        # RIFT Production Readiness: clean untracked junk (pycache, pyc) then
-        # wipe the index so nothing binary can sneak into the commit.
-        repo.git.execute(["git", "clean", "-fd", "--exclude=.gitignore"])
+        # ── Atomic Cleanup: Replaces git clean -fd with permission-safe purge ──
+        import subprocess
+        subprocess.run('find . -name "__pycache__" -type d -exec rm -rf {} +', shell=True, check=False, cwd=repo_path)
+        subprocess.run('find . -name "*.pyc" -delete', shell=True, check=False, cwd=repo_path)
+
         repo.git.execute(["git", "rm", "-r", "--cached", ".", "--ignore-unmatch"])
         gitignore_path = os.path.join(repo_path, ".gitignore")
         with open(gitignore_path, "w") as f:
@@ -69,39 +73,38 @@ def git_node(state: AgentState) -> AgentState:
         repo.git.add(".gitignore")
         repo.git.add(all=True)
 
-        
         # Check if there are actually changes to commit
         if repo.is_dirty(untracked_files=True) or repo.index.diff("HEAD"):
             repo.index.commit(commit_msg, author=author, committer=committer)
             print(f"Git: Committed — '{commit_msg}'")
         else:
             print("Git: No changes to commit (skipping).")
-            # If no changes, we might want to return early to avoid pushing? 
-            # But the logic currently continues. Let's let it check for push in case local/remote are out of sync,
-            # but usually this means we shouldn't push. 
-            # Ideally we return here if we didn't commit anything new AND we haven't committed anything in this run?
-            # For simplicity, just don't commit.
     except Exception as e:
         print(f"Git: Commit failed: {e}")
         return state
 
-    # Push to remote (requires the remote repo to have been authenticated)
-    # We use the origin URL as-is; GitHub token auth is via GITHUB_TOKEN in .env
+    # ── Force-Rebase Push ────────────────────────────────────────────────────
     try:
         github_token = os.environ.get("GITHUB_TOKEN")
-        clean_remote_url = repo.remotes.origin.url  # always the clean URL before auth injection
+        clean_remote_url = repo.remotes.origin.url
 
         if github_token:
-            # Strip any previously injected token to avoid double-injection on retries
             raw_url = clean_remote_url
             if "@github.com" in raw_url:
-                # Already has a token injected — strip it out first
                 raw_url = "https://github.com" + raw_url.split("@github.com", 1)[1]
                 clean_remote_url = raw_url
 
             if raw_url.startswith("https://"):
                 authed_url = raw_url.replace("https://", f"https://{github_token}@")
                 repo.remotes.origin.set_url(authed_url)
+
+        # Implementation of "git pull --rebase origin {branch_name} && git push origin {branch_name}"
+        # This handles the "failed to push some refs" error gracefully.
+        print(f"Git: Pulling with rebase from origin {branch_name}...")
+        try:
+            repo.git.pull('origin', branch_name, rebase=True)
+        except Exception as pull_err:
+            print(f"Git: Pull --rebase failed (might be first push): {pull_err}")
 
         repo.remotes.origin.push(refspec=f"{branch_name}:{branch_name}")
         print(f"Git: Pushed branch '{branch_name}' to origin.")

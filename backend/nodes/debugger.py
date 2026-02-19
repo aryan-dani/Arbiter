@@ -208,29 +208,46 @@ def debugger_node(state: AgentState) -> AgentState:
             except Exception as e:
                 print(f"Debugger: Failed to read test file {test_file_path}: {e}")
 
-            # ── STRATEGY 2: Multi-File Logic (Import Parsing) ──
+            # ── STRATEGY 2: Dependency Graph (Import Parsing) ──
             # Parse "from src.math_ops import add" or "import src.utils"
-            # We want to add these referenced src files to the context.
+            # This identifies the "Source of Truth" for the logic being tested.
+            import_source_file = None
             if test_file_content:
-                imported_modules = re.findall(r'from src\.(\w+)', test_file_content)
-                imported_modules += re.findall(r'import src\.(\w+)', test_file_content)
+                # Capture all imports from src.
+                imported_modules = re.findall(r'from src\.([a-zA-Z0-9_]+)', test_file_content)
+                imported_modules += re.findall(r'import src\.([a-zA-Z0-9_]+)', test_file_content)
                 
                 if imported_modules:
-                     print(f"Debugger: Test imports the following src modules: {imported_modules}")
-                     # Try to map module names to file names in source_files keys
-                     for mod in imported_modules:
-                         # mod is "math_ops" -> look for "src/math_ops.py" or just "math_ops.py"
-                         for fname in source_files.keys():
-                             if f"{mod}.py" in fname:
-                                 print(f"Debugger: INCLUDE IMPORTED FILE -> {fname}")
-                                 function_match_file = fname # Promote to anchor if we haven't found a better one?
-                                 # Or better yet, we can add it to a "secondary context" list?
-                                 # For "One fix per iteration", we need to focus on ONE.
-                                 # If the traceback points to utils.py, but test imports math_ops.py,
-                                 # and utils.py imports math_ops.py...
-                                 # Maybe we prioritize the *deepest* import?
-                                 # For now, let's use the Function Anchor logic (def target_func) which is strongest.
-                                 pass
+                    print(f"Debugger: Dependency Graph - Test imports from src: {imported_modules}")
+                    # Map the FIRST imported module (usually the primary subject) to a file
+                    for mod in imported_modules:
+                        for fname in source_files.keys():
+                            if f"{mod}.py" in fname:
+                                import_source_file = fname
+                                break
+                        if import_source_file:
+                            break
+
+            # ── STRATEGY 3: Function Anchor (Existing) ──
+            # Search for "def target_func_name" or "class target_func_name" in source files
+            print(f"Debugger: Searching for definition of '{target_func_name}'...")
+            def_pattern = re.compile(rf'(async\s+)?(def|class)\s+{re.escape(target_func_name)}\b')
+            
+            for name, content in source_files.items():
+                if def_pattern.search(content):
+                    function_match_file = name
+                    print(f"Debugger: Function Anchor FOUND. '{target_func_name}' is defined in '{name}'.")
+                    break
+            
+            # ── HEURISTIC PRIORITY & CONFLICT RESOLUTION ──────────────────────────
+            # If a LOGIC or TYPE_ERROR occurs, we check if the traceback points to a utility file
+            # while the test file imports a core module. We prioritize the Core Module.
+            if import_source_file:
+                 if function_match_file and function_match_file != import_source_file:
+                      # Conflict! Prioritize core module if it's a logic error
+                      # Logic errors are often caught in utils but caused by core module inputs
+                      print(f"Debugger: Dependency Conflict! Prioritizing Import Source '{import_source_file}' over Function Match.")
+                      function_match_file = import_source_file
 
             # ── STRATEGY 3: Function Anchor (Existing) ──
             # Search for "def target_func_name" or "class target_func_name" in source files
@@ -262,11 +279,14 @@ def debugger_node(state: AgentState) -> AgentState:
     
     final_anchor_file = None
     if not is_stuck:
-        final_anchor_file = function_match_file if function_match_file else traceback_file
-        
-        if function_match_file and traceback_file and function_match_file != traceback_file:
-             print(f"Debugger: Anchor CONFLICT! Traceback says '{traceback_file}', but Function Anchor says '{function_match_file}'.")
-             print(f"Debugger: RESOLUTION -> Prioritizing Function Anchor '{function_match_file}' (Source of Truth).")
+        # User Instruction: "If Traceback_Anchor != Import_Source, then Anchor = Import_Source."
+        if import_source_file:
+            final_anchor_file = import_source_file
+            if traceback_file and traceback_file != import_source_file:
+                print(f"Debugger: Anchor Conflict! Traceback says '{traceback_file}' but Import Source says '{import_source_file}'.")
+                print(f"Debugger: RESOLUTION -> Anchor = Import Source '{import_source_file}'.")
+        else:
+            final_anchor_file = function_match_file if function_match_file else traceback_file
     else:
         print("Debugger: STUCK MODE ACTIVE. Fallback to Full Context Scanner.")
 

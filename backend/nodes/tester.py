@@ -25,11 +25,9 @@ def tester_node(state: AgentState) -> AgentState:
 
     try:
         if stack == "PYTHON":
-            # PYTHONPATH includes src/ and cwd so all imports resolve.
-            # flake8 and pytest are ALWAYS both run (flake8 uses || true so pytest
-            # is never blocked by linting failures — judge compliance).
             command = (
                 "bash -c '"
+                "export PYTHONDONTWRITEBYTECODE=1; "
                 "export PYTHONPATH=$PYTHONPATH:$(pwd)/src:$(pwd); "
                 "pip install flake8 pytest --quiet -q > /dev/null 2>&1; "
                 "([ -f requirements.txt ] && pip install -r requirements.txt --quiet -q > /dev/null 2>&1); "
@@ -40,18 +38,18 @@ def tester_node(state: AgentState) -> AgentState:
             image = "python:3.11-slim"
 
         elif stack == "NODE":
-            # Use full node image (has bash + more tools)
             command = (
                 "bash -c '"
+                "export PYTHONDONTWRITEBYTECODE=1; "
                 "npm install --silent 2>/dev/null && "
                 "(npm test 2>&1 || true)'"
             )
-            image = "node:18"   # Full Debian image, has bash
+            image = "node:18"
 
         else:
-            print(f"Unknown or undetected stack: '{stack}'. Defaulting to Python with pytest.")
             command = (
                 "bash -c '"
+                "export PYTHONDONTWRITEBYTECODE=1; "
                 "pip install pytest --quiet -q > /dev/null 2>&1; "
                 "([ -f requirements.txt ] && pip install -r requirements.txt --quiet -q > /dev/null 2>&1); "
                 "pytest -v --tb=long 2>&1'"
