@@ -1,9 +1,30 @@
+import { useState, useEffect } from 'react';
 import { Shield, RefreshCw, Clock, Wrench, Terminal } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import useAgentStore from '../store/useAgentStore';
 
 export default function TopBar() {
   const { isRunning, runData, runComplete, stats } = useAgentStore();
+
+  /* ── Live CP Timer ── */
+  const [elapsedTime, setElapsedTime] = useState('00:00');
+
+  useEffect(() => {
+    let interval;
+    if (isRunning && runData?.startedAt) {
+      const start = new Date(runData.startedAt).getTime();
+      interval = setInterval(() => {
+        const now = new Date().getTime();
+        const diff = Math.floor((now - start) / 1000);
+        const mins = Math.floor(diff / 60).toString().padStart(2, '0');
+        const secs = (diff % 60).toString().padStart(2, '0');
+        setElapsedTime(`${mins}:${secs}`);
+      }, 1000);
+    } else {
+      setElapsedTime('00:00');
+    }
+    return () => clearInterval(interval);
+  }, [isRunning, runData?.startedAt]);
 
   const metrics = [
     {
@@ -14,7 +35,7 @@ export default function TopBar() {
     {
       icon: Clock,
       label: 'HEAL TIME',
-      value: runComplete ? stats.avgHealTime : '—',
+      value: isRunning ? elapsedTime : (runComplete ? stats.avgHealTime : '—'),
     },
     {
       icon: Wrench,

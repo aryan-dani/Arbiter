@@ -51,3 +51,4 @@ class AgentState(TypedDict):
     max_iterations: int
     iterations: int
     model_name: str
+    last_exit_code: int  # Added for "Paneer Run" logic (Exit Code 2 relaxation)

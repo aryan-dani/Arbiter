@@ -28,7 +28,7 @@ export default function PerformanceMetrics() {
   ];
 
   return (
-    <div className="bg-arbiter-surface border border-arbiter-border overflow-hidden flex flex-col h-full min-h-[340px]">
+    <div className="bg-arbiter-surface border border-arbiter-border overflow-hidden flex flex-col h-[500px]">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-3 border-b border-arbiter-border">
         <h3 className="text-[15px] font-bold text-arbiter-text font-mono">Performance Metrics</h3>

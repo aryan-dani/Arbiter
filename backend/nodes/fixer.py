@@ -41,17 +41,34 @@ def fixer_node(state: AgentState) -> AgentState:
     file_relative_path = file_relative_path.lstrip('/')
     
     # ── SAFETY GUARD: Block Hallucinated Source Files ──────────────────────────
+    # ── SAFETY GUARD: Block Hallucinated Source Files ──────────────────────────
     traceback_file = analysis.get('traceback_file')
-    if traceback_file:
+    last_exit_code = state.get('last_exit_code', 0)
+    
+    # RIFT "Final Boss" Logic:
+    # If Exit Code is 2 (Pytest Collection Error), the traceback might point to the *last* file checked,
+    # but the syntax error could be in *any* file. In this case, we TRUST the LLM/Analyzer's file choice
+    # and bypass the strict filename matching.
+    if traceback_file and last_exit_code != 2:
         # Normalize for comparison
         tf_norm = traceback_file.replace('\\', '/').strip()
         rf_norm = file_relative_path.replace('\\', '/').strip()
         
         # Loose match: ends with
         if not (rf_norm.endswith(tf_norm) or tf_norm.endswith(rf_norm)):
-            print(f"Fixer: BLOCKED HALLUCINATION. Traceback says '{tf_norm}' but AI wants to fix '{rf_norm}'")
-            # We must fail this turn so we don't commit garbage
-            return state
+            # "Anchor Conflict" Fix:
+            # If the file the AI wants to fix is mentioned ANYWHERE in the container logs,
+            # we allow it. The Traceback Anchor is just a heuristic, but sometimes the real error
+            # is in a file that called the failing file, or a file that is imported.
+            error_logs = state.get('error_logs', '')
+            if rf_norm in error_logs or os.path.basename(rf_norm) in error_logs:
+                 print(f"Fixer: Traceback mismatch ('{tf_norm}' != '{rf_norm}'), but file found in logs. Allowing fix.")
+            else:
+                print(f"Fixer: BLOCKED HALLUCINATION. Traceback says '{tf_norm}' but AI wants to fix '{rf_norm}' (and file not found in logs)")
+                # We must fail this turn so we don't commit garbage
+                return state
+    elif last_exit_code == 2:
+         print(f"Fixer: Exit Code 2 (Collection Error) detected. Bypassing hallucination check to allow fixes for '{file_relative_path}'.")
 
     file_full_path = os.path.join(repo_path, file_relative_path)
 
@@ -161,6 +178,10 @@ def fixer_node(state: AgentState) -> AgentState:
         "fixed_code": "<the full fixed file content as a string>",
         "fix_action": "<short fix description, e.g. 'remove the import statement' or 'add the colon at the correct position'>"
     }}
+    
+    IMPORTANT: You are a JSON-ONLY generator. You must return EXACTLY this schema: {{"fixed_code": "..."}}. 
+    If you include any text before or after the JSON, or use triple backticks (```), the system will fail. 
+    Escaping all double quotes inside the 'fixed_code' string is mandatory.
     """
 
 

@@ -92,7 +92,10 @@ export default function SettingsModal({ open, onClose }) {
               <input
                 type="number"
                 value={maxRetries}
-                onChange={(e) => setMaxRetries(Number(e.target.value))}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setMaxRetries(val === '' ? '' : Number(val));
+                }}
                 disabled={isRunning}
                 min={1}
                 max={10}

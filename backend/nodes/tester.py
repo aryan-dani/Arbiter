@@ -1,5 +1,6 @@
 import docker
 import os
+import re
 from datetime import datetime
 from backend.state import AgentState
 
@@ -181,6 +182,19 @@ def tester_node(state: AgentState) -> AgentState:
     state['error_logs'] = clean_logs  # Full clean pytest output for debugger
     state['timeline'] = timeline
 
+    # Parse failure count from logs
+    # Pattern: "=== 1 failed, 4 passed in 0.12s ===" or "=== 1 failed in 0.12s ==="
+    failed_count = 0
+    match = re.search(r'=== (\d+) failed', clean_logs)
+    if match:
+        failed_count = int(match.group(1))
+    
+    # Update failure history for "Stuck Detection"
+    failure_history = state.get('failure_history', [])
+    failure_history.append(failed_count)
+    state['failure_history'] = failure_history
+    state['failure_count'] = failed_count
+
     if exit_code == 0:
         state['final_status'] = "PASSED"
         state['is_healing_complete'] = True
@@ -189,8 +203,10 @@ def tester_node(state: AgentState) -> AgentState:
         state['retry_count'] = state.get('retry_count', 0) + 1
 
     state['current_step'] = "TESTING_COMPLETE"
+    state['last_exit_code'] = exit_code
 
     print(f"Testing Complete. Exit Code: {exit_code}")
+    print(f"Stats: {failed_count} Failed. History: {failure_history}")
     print(f"Container Logs:\n{clean_logs[:800]}{'...' if len(clean_logs) > 800 else ''}")
 
     return state

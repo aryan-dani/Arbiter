@@ -175,7 +175,8 @@ const useAgentStore = create((set, get) => ({
         fixes: [],
         iterations: [],
         score: null,
-        totalFixes: 0
+        totalFixes: 0,
+        startedAt: new Date().toISOString(),
       },
       terminalLogs: [],
       error: null
@@ -192,7 +193,7 @@ const useAgentStore = create((set, get) => ({
           repo_url: repoUrl,
           team_name: teamName,
           leader_name: leaderName,
-          max_iterations: get().maxRetries,
+          max_iterations: Number(get().maxRetries) || 5,
           model_name: get().aiModel
         }),
       });
@@ -213,12 +214,31 @@ const useAgentStore = create((set, get) => ({
       // Stream progress messages while polling
       let msgIdx = 0;
       const streamInterval = setInterval(() => {
-        if (msgIdx < PROGRESS_MESSAGES.length) {
-          const { _addLog: al } = get();
+        const { _addLog: al, isRunning } = get();
+
+        if (!isRunning) {
+          clearInterval(streamInterval);
+          return;
+        }
+
+        if (msgIdx < PROGRESS_MESSAGES.length - 1) {
+          // Normal progression
           al(PROGRESS_MESSAGES[msgIdx].agent, PROGRESS_MESSAGES[msgIdx].message, PROGRESS_MESSAGES[msgIdx].type);
           msgIdx++;
+        } else {
+          // Loop the "Working" phase (Test -> Debug -> Fix -> Git -> Test)
+          // Indices 4 to 8 cover the active loop
+          // 4: Running test suite...
+          // 5: Analyzing test failures...
+          // 6: Generating code fix...
+          // 7: Committing fix...
+          // 8: Re-running test suite...
+
+          // We restart at index 4 to simulate a new iteration
+          msgIdx = 4; // Loop back to "Running test suite..."
+          al(PROGRESS_MESSAGES[msgIdx].agent, "Starting next iteration...", PROGRESS_MESSAGES[msgIdx].type);
         }
-      }, 3000);
+      }, 4000); // Slow down slightly to match backend speed
 
       // Poll /status/{teamName} every 5 seconds
       const poll = async () => {
