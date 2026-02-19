@@ -2,7 +2,7 @@ import { Play, GitBranch, RotateCcw, Settings, Loader2 } from 'lucide-react';
 import useAgentStore from '../store/useAgentStore';
 
 export default function ActionBar({ onOpenSettings }) {
-  const { repoUrl, isRunning, runComplete, runAgent, reset } = useAgentStore();
+  const { repoUrl, isRunning, runComplete, runAgent, reset, runData } = useAgentStore();
 
   const displayRepo = repoUrl
     ? repoUrl.replace(/^https?:\/\/(www\.)?github\.com\//i, '')
@@ -52,13 +52,25 @@ export default function ActionBar({ onOpenSettings }) {
           </button>
         )}
 
-        <button className="flex items-center gap-2 border border-arbiter-border text-arbiter-text-muted hover:bg-arbiter-surface hover:text-arbiter-text text-[13px] font-mono font-medium px-4 py-2 transition">
-          <GitBranch className="w-4 h-4" />
-          Branch
-        </button>
+        {runData?.branchName ? (
+          <a
+            href={`${repoUrl}/tree/${runData.branchName}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 border border-arbiter-border text-arbiter-text hover:bg-arbiter-surface hover:text-arbiter-green text-[13px] font-mono font-medium px-4 py-2 transition"
+          >
+            <GitBranch className="w-4 h-4" />
+            {runData.branchName}
+          </a>
+        ) : (
+          <button disabled className="flex items-center gap-2 border border-arbiter-border text-arbiter-text-dim/50 cursor-not-allowed text-[13px] font-mono font-medium px-4 py-2 transition">
+            <GitBranch className="w-4 h-4" />
+            Branch
+          </button>
+        )}
 
         <button
-          onClick={reset}
+          onClick={handleExecute}
           className="flex items-center gap-2 border border-arbiter-border text-arbiter-text-muted hover:bg-arbiter-surface hover:text-arbiter-text text-[13px] font-mono font-medium px-4 py-2 transition"
         >
           <RotateCcw className="w-4 h-4" />

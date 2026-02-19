@@ -21,7 +21,8 @@ def check_test_status(state: AgentState):
         return "passed"
     # retry_count is already incremented by tester_node after each failure
     retry_count = state.get('retry_count', 0)
-    if retry_count >= MAX_RETRIES:
+    max_retries = state.get('max_iterations', 5)
+    if retry_count >= max_retries:
         return "max_retries"
     return "failed"
 
@@ -60,7 +61,20 @@ def create_workflow():
         }
     )
 
-    workflow.add_edge("debugger", "fixer")
+    # Conditional Edge from Debugger (Guardrail: prevent fixing if no bugs found)
+    def check_debugger_status(state: AgentState):
+        if state.get('current_step') == "NO_BUGS_FOUND":
+            return "stop"
+        return "continue"
+
+    workflow.add_conditional_edges(
+        "debugger",
+        check_debugger_status,
+        {
+            "continue": "fixer",
+            "stop": "scoring",
+        }
+    )
     workflow.add_edge("fixer", "git")
     workflow.add_edge("git", "tester")
     workflow.add_edge("scoring", END)

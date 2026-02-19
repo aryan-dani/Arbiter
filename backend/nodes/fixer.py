@@ -8,7 +8,11 @@ def fixer_node(state: AgentState) -> AgentState:
     """
     Generates code fixes and applies them to the repository.
     """
+    from backend.utils.supabase_manager import SupabaseManager
+    
     print("Fixer Node Started...")
+    supabase = SupabaseManager()
+
     
     analysis = state.get('current_analysis')
     if not analysis:
@@ -105,6 +109,23 @@ def fixer_node(state: AgentState) -> AgentState:
     ) if expected_exception else ""
 
 
+    # ── AGENT MEMORY: Check for previous successful fixes ──
+    reference_fix = supabase.get_previous_fix(
+        bug_type=analysis.get('bug_type', ''),
+        description=analysis.get('description', '')
+    )
+    
+    reference_fix_prompt = ""
+    if reference_fix:
+        print(f"Agent Memory: Found reference fix from a previous run!")
+        reference_fix_prompt = (
+            f"\n    REFERENCE FIX (from previous successful run):\n"
+            f"    The following fix was successfully applied to a similar bug:\n"
+            f"    Description: {reference_fix.get('description')}\n"
+            f"    Code Action: {reference_fix.get('fix_action')}\n"
+            f"    Consider this approach if applicable.\n"
+        )
+
     prompt = f"""
     You are an expert Autonomous AI Fixer.
 
@@ -133,6 +154,7 @@ def fixer_node(state: AgentState) -> AgentState:
     - If File is 'package.json': Add the dependency to the "dependencies" section.
     - Output the FULL file content in "fixed_code", not just the diff.
 {exception_rule}
+{reference_fix_prompt}
 
     Output strictly as JSON (no markdown):
     {{
@@ -151,7 +173,7 @@ def fixer_node(state: AgentState) -> AgentState:
     for attempt in range(max_retries + 1):
         try:
             response = client.models.generate_content(
-                model='gemini-2.5-flash',
+                model=state.get('model_name', 'gemini-2.5-flash'),
                 contents=prompt,
                 config={"response_mime_type": "application/json"}
             )
@@ -235,6 +257,14 @@ def fixer_node(state: AgentState) -> AgentState:
         state['fixes_applied'].append(fix_entry)
         state['current_step'] = "FIX_APPLIED"
         print(f"Fix applied to {file_relative_path}")
+        
+        # Log to Supabase
+        supabase.update_node_status(
+            run_id=state.get('run_id'),
+            node="Fixer",
+            log_type="FIX_APPLIED",
+            content=fix_entry
+        )
         
     except Exception as e:
         print(f"Fixer Failed: {e}")

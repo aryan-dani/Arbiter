@@ -2369,5 +2369,135 @@
         "retry_count": 4,
         "completed_at": "2026-02-20T01:21:22.720042",
         "started_at": "2026-02-20T01:20:05.250889"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/Speech_To_Text",
+        "team_name": "S",
+        "leader_name": "T",
+        "branch_name": "S_T_AI_Fix",
+        "final_status": "FAILED",
+        "total_time": 68.81435704231262,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [],
+        "timeline": [
+            {
+                "timestamp": "2026-02-20T02:29:49.689894",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 0
+                }
+            }
+        ],
+        "retry_count": 1,
+        "completed_at": "2026-02-20T02:29:49.693336",
+        "started_at": "2026-02-20T02:28:40.878471"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/Portfolio",
+        "team_name": "alpha",
+        "leader_name": "dradayam",
+        "branch_name": "ALPHA_DRADAYAM_AI_Fix",
+        "final_status": "PENDING",
+        "total_time": 3.847276210784912,
+        "final_score": 0,
+        "base_score": 0,
+        "speed_bonus": 0,
+        "efficiency_penalty": 0,
+        "fixes_applied": [],
+        "timeline": [],
+        "retry_count": 0,
+        "completed_at": "2026-02-20T02:49:19.837384",
+        "started_at": "2026-02-20T02:49:15.989519"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo",
+        "team_name": "menu",
+        "leader_name": "kipata",
+        "branch_name": "MENU_KIPATA_AI_Fix",
+        "final_status": "PASSED",
+        "total_time": 74.88965392112732,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [
+            {
+                "path": "src/validator.py",
+                "bug_type": "SYNTAX",
+                "line": 2,
+                "description": "SYNTAX error in src/validator.py line 2 \u2192 Fix: Add missing colon to 'if' statement.",
+                "commit_message": "[AI-AGENT] SYNTAX fix in src/validator.py line 2: Add missing colon to 'if' statement."
+            },
+            {
+                "path": "src/utils.py",
+                "bug_type": "LINTING",
+                "line": 1,
+                "description": "LINTING error in src/utils.py line 1 \u2192 Fix: Remove unused import 'os'.",
+                "commit_message": "[AI-AGENT] LINTING fix in src/utils.py line 1: Remove unused import 'os'."
+            },
+            {
+                "path": "src/math_ops.py",
+                "bug_type": "LOGIC",
+                "line": 2,
+                "description": "LOGIC error in src/math_ops.py line 2 \u2192 Fix: Changed subtraction to addition in 'add' function.",
+                "commit_message": "[AI-AGENT] LOGIC fix in src/math_ops.py line 2: Changed subtraction to addition in 'add' function."
+            },
+            {
+                "path": "src/validator.py",
+                "bug_type": "LOGIC",
+                "line": 3,
+                "description": "LOGIC error in src/validator.py line 3 \u2192 Fix: Raise SyntaxError for negative input instead of returning False.",
+                "commit_message": "[AI-AGENT] LOGIC fix in src/validator.py line 3: Raise SyntaxError for negative input instead of returning False."
+            }
+        ],
+        "timeline": [
+            {
+                "timestamp": "2026-02-20T02:50:56.119776",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-20T02:51:15.988199",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-20T02:51:29.529673",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-20T02:51:43.745762",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-20T02:52:02.429147",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 0,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 4,
+        "completed_at": "2026-02-20T02:52:02.431629",
+        "started_at": "2026-02-20T02:50:47.541466"
     }
 ]

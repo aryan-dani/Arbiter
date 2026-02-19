@@ -42,6 +42,8 @@ class HealingRequest(BaseModel):
     repo_url: str
     team_name: str
     leader_name: str
+    max_iterations: int = 5
+    model_name: str = "gemini-2.5-flash"
 
 
 def _sanitize(s: str) -> str:
@@ -53,14 +55,24 @@ def _branch_name(team: str, leader: str) -> str:
     return f"{_sanitize(team)}_{_sanitize(leader)}_AI_Fix"
 
 
-async def run_healing_workflow(request: HealingRequest):
+async def run_healing_workflow(request: HealingRequest, run_id: str = None):
     """
     Executes the LangGraph workflow and saves results.
     """
+    from backend.utils.supabase_manager import SupabaseManager
+    
     key = request.team_name
     run_status[key] = {"status": "running", "team_name": request.team_name}
 
     start_time = datetime.now()
+    
+    # Initialize Supabase
+    supabase = SupabaseManager()
+    if run_id:
+        print(f"Workflow started with Supabase Run ID: {run_id}")
+    else:
+        print("WARNING: No run_id provided to workflow. Logging disabled.")
+
     workflow_app = create_workflow()
 
     # Initialize State
@@ -84,7 +96,13 @@ async def run_healing_workflow(request: HealingRequest):
         total_time=0.0,
         final_score=0,
         is_healing_complete=False,
-        current_analysis={}
+        current_analysis={},
+        current_analysis={},
+        # Rate Limiting (Default: 5 loops max to prevent infinite API usage)
+        max_iterations=request.max_iterations,
+        iterations=0,
+        run_id=run_id,
+        model_name=request.model_name
     )
 
     try:
@@ -93,9 +111,19 @@ async def run_healing_workflow(request: HealingRequest):
         duration = final_state.get('total_time', 0.0)
         fixes = final_state.get('fixes_applied', [])
         commit_count = len(fixes)
-        base_score = 100
-        speed_bonus = 10 if duration < 300 else 0
-        efficiency_penalty = max(0, (commit_count - 20) * 2) if commit_count > 20 else 0
+        if final_state.get('final_status') == "PASSED":
+            base_score = 100
+            speed_bonus = 10 if duration < 300 else 0
+            efficiency_penalty = max(0, (commit_count - 20) * 2) if commit_count > 20 else 0
+            final_score = base_score + speed_bonus - efficiency_penalty
+        else:
+            base_score = 0
+            speed_bonus = 0
+            efficiency_penalty = 0
+            final_score = 0
+
+        # Update state with the calculated score so it matches
+        final_state['final_score'] = final_score
 
         # Save Results
         result_entry = {
@@ -113,8 +141,17 @@ async def run_healing_workflow(request: HealingRequest):
             "timeline": final_state.get('timeline', []),
             "retry_count": final_state.get('retry_count', 0),
             "completed_at": datetime.now().isoformat(),
+            "completed_at": datetime.now().isoformat(),
             "started_at": start_time.isoformat(),
         }
+
+        # Update Supabase Final Status
+        supabase.finalize_run(
+            run_id=run_id,
+            score=final_score,
+            duration=duration,
+            status=final_state.get('final_status', 'UNKNOWN')
+        )
 
         # Load and append
         existing_results = _load_results()
@@ -153,13 +190,24 @@ async def start_healing(request: HealingRequest, background_tasks: BackgroundTas
     """
     Triggers the autonomous healing process for the given repository.
     """
-    background_tasks.add_task(run_healing_workflow, request)
+    from backend.utils.supabase_manager import SupabaseManager
+    
+    # Create Supabase Run Synchronously
+    supabase = SupabaseManager()
+    run_id = supabase.create_run(
+        run_name=f"{request.team_name}-{request.leader_name}",
+        target_repo=request.repo_url
+    )
+    
+    background_tasks.add_task(run_healing_workflow, request, run_id)
+    
     return {
         "message": "Healing process started in background",
         "repo_url": request.repo_url,
         "team_name": request.team_name,
         "branch_name": _branch_name(request.team_name, request.leader_name),
         "status": "running",
+        "run_id": run_id
     }
 
 

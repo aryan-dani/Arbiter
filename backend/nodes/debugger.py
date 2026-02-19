@@ -65,21 +65,27 @@ def _extract_expected_exception(failures_text: str) -> str | None:
     return None
 
 
+from backend.logger import get_logger
+
+logger = get_logger("debugger_node")
+
+
 def debugger_node(state: AgentState) -> AgentState:
     """
     Analyzes error logs to categorize bugs and identify locations.
     """
-    print("Debugger Node Started...")
+    logger.info("Debugger Node Started...", extra={"team_name": state.get("team_name")})
 
     error_logs = state['error_logs']
 
-    if not error_logs:
-        print("No error logs to analyze.")
+    if not error_logs or len(error_logs.strip()) < 10:
+        logger.info("GUARDRAIL: No error logs to analyze. Assuming NO_BUGS_FOUND.")
+        state['current_step'] = "NO_BUGS_FOUND"
         return state
 
     api_key = os.environ.get("GOOGLE_API_KEY")
     if not api_key:
-        print("CRITICAL: GOOGLE_API_KEY not found in environment variables.")
+        logger.error("CRITICAL: GOOGLE_API_KEY not found in environment variables.")
         return state
 
     client = genai.Client(api_key=api_key)

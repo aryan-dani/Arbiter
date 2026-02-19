@@ -33,6 +33,8 @@ const useAgentStore = create((set, get) => ({
   repoUrl: '',
   teamName: '',
   leaderName: '',
+  aiModel: 'gemini-2.0-flash',
+  maxRetries: 5,
 
   // ── Dashboard stats ──
   stats: {
@@ -57,14 +59,18 @@ const useAgentStore = create((set, get) => ({
 
   // ── Run state ──
   isRunning: false,
+  activeAgent: null,
   runComplete: false,
   runData: null,
+  runId: null,
   error: null,
 
   // ── Setters ──
   setRepoUrl: (url) => set({ repoUrl: url }),
   setTeamName: (name) => set({ teamName: name }),
   setLeaderName: (name) => set({ leaderName: name }),
+  setAiModel: (model) => set({ aiModel: model }),
+  setMaxRetries: (count) => set({ maxRetries: count }),
 
   // ── Append a terminal log entry ──
   _addLog: (agent, message, type = 'info') => {
@@ -73,13 +79,107 @@ const useAgentStore = create((set, get) => ({
     });
     set((s) => ({
       terminalLogs: [...s.terminalLogs, { agent, message, type, time }],
+      activeAgent: agent, // Track active agent for visualization
     }));
+  },
+
+  // ── Real-time Updates ──
+  setStatus: (status) => set((s) => ({
+    runData: { ...s.runData, final_status: status },
+    runComplete: status === 'PASSED' || status === 'FAILED' || status === 'ERROR'
+  })),
+
+  updateFromLog: (log) => {
+    const { _addLog, performance, runData } = get();
+
+    // Parse Supabase log entry
+    const agentMap = {
+      'discovery_node': 'DISCOVERY',
+      'tester_node': 'TESTER',
+      'debugger_node': 'DEBUGGER',
+      'fixer_node': 'FIXER',
+      'git_node': 'GIT',
+      'scoring_node': 'SCORING'
+    };
+    const agent = agentMap[log.node_name] || 'COORDINATOR';
+
+    // Add to terminal
+    _addLog(agent, log.log_type === 'INFO' ? log.content : (typeof log.content === 'string' ? log.content : JSON.stringify(log.content)), log.log_type.toLowerCase());
+
+    // Update Metrics Dynamic Logic
+    if (log.log_type === 'FIX_APPLIED') {
+      const fixEntry = {
+        id: (runData?.fixes?.length || 0) + 1,
+        file: log.content.path || 'unknown',
+        bugType: log.content.bug_type || 'LOGIC',
+        lineNumber: log.content.line || 0,
+        commitMessage: log.content.commit_message || 'AI Fix',
+        status: 'Fixed'
+      };
+
+      set((s) => ({
+        performance: {
+          ...s.performance,
+          coverage: Math.min(100, s.performance.coverage + 10),
+          efficiency: Math.min(100, s.performance.efficiency + 5)
+        },
+        runData: {
+          ...(s.runData || {}),
+          fixes: [...(s.runData?.fixes || []), fixEntry],
+          totalFixes: (s.runData?.fixes?.length || 0) + 1
+        }
+      }));
+    }
+
+    if (agent === 'TESTER') {
+      const contentStr = typeof log.content === 'string' ? log.content : JSON.stringify(log.content);
+
+      // Update reliability
+      if (contentStr.includes('FAIL')) {
+        set((s) => ({
+          performance: { ...s.performance, reliability: Math.max(0, s.performance.reliability - 10) }
+        }));
+      }
+
+      // Infer Iteration Logic: "Testing Complete" usually marks end of an iteration
+      if (contentStr.includes('Testing Complete')) {
+        const currentIter = (runData?.iterations?.length || 0) + 1;
+        const passed = contentStr.includes('Exit Code: 0');
+
+        const newIter = {
+          id: currentIter,
+          passed: passed,
+          timestamp: new Date().toISOString(),
+          label: `${currentIter}`,
+        };
+
+        set((s) => ({
+          runData: {
+            ...(s.runData || {}),
+            iterations: [...(s.runData?.iterations || []), newIter]
+          }
+        }));
+      }
+    }
   },
 
   // ── Run agent (real backend) ──
   runAgent: async () => {
     const { repoUrl, teamName, leaderName, _addLog } = get();
-    set({ isRunning: true, isStreaming: true, runComplete: false, runData: null, terminalLogs: [], error: null });
+    set({
+      isRunning: true,
+      isStreaming: true,
+      runComplete: false,
+      runData: {
+        repoUrl, teamName, leaderName,
+        fixes: [],
+        iterations: [],
+        score: null,
+        totalFixes: 0
+      },
+      terminalLogs: [],
+      error: null
+    });
 
     _addLog('COORDINATOR', 'Sending request to backend agent...', 'info');
 
@@ -92,11 +192,20 @@ const useAgentStore = create((set, get) => ({
           repo_url: repoUrl,
           team_name: teamName,
           leader_name: leaderName,
+          max_iterations: get().maxRetries,
+          model_name: get().aiModel
         }),
       });
 
       if (!res.ok) {
         throw new Error(`Backend error: ${res.status} ${res.statusText}`);
+      }
+
+      const data = await res.json();
+
+      // Store runId for real-time subscription
+      if (data.run_id) {
+        set({ runId: data.run_id });
       }
 
       _addLog('COORDINATOR', 'Healing agent launched in background...', 'success');
@@ -233,7 +342,9 @@ const useAgentStore = create((set, get) => ({
       isRunning: false,
       isStreaming: false,
       runComplete: false,
+      runComplete: false,
       runData: null,
+      runId: null,
       terminalLogs: [],
       error: null,
     }),

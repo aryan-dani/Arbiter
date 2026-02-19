@@ -5,6 +5,10 @@ import stat
 from git import Repo
 from backend.state import AgentState
 
+from backend.logger import get_logger
+
+logger = get_logger("discovery_node")
+
 # Use absolute path for temp_repos relative to project root (3 levels up from nodes/discovery.py)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 WORK_DIR = os.path.join(BASE_DIR, "temp_repos")
@@ -20,7 +24,7 @@ def discovery_node(state: AgentState) -> AgentState:
     """
     Clones the repository, detects the stack, and finds test files.
     """
-    print("Discovery Node Started...")
+    logger.info("Discovery Node Started...", extra={"team_name": state.get("team_name")})
     repo_url = state['repo_url']
     team_name = state['team_name']
 
@@ -133,6 +137,29 @@ def discovery_node(state: AgentState) -> AgentState:
         detected_stack = "PYTHON"
     elif has_package_json:
         detected_stack = "NODE"
+
+    # ── GUARDRAIL: Test-Ready Check ──────────────────────────────────────────
+    # If the repo has no tests, we cannot heal it. Fail fast.
+    is_healable = False
+    if detected_stack == "PYTHON":
+        has_tests_dir = os.path.exists(os.path.join(repo_dir, "tests"))
+        has_test_files = bool(glob.glob(os.path.join(repo_dir, "**", "test_*.py"), recursive=True)) or \
+                         bool(glob.glob(os.path.join(repo_dir, "**", "*_test.py"), recursive=True))
+        is_healable = has_tests_dir or has_test_files
+    elif detected_stack == "NODE":
+        pkg_json_path = os.path.join(repo_dir, "package.json")
+        if os.path.exists(pkg_json_path):
+            with open(pkg_json_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+                is_healable = '"test":' in content or '"test"' in content
+    
+    if not is_healable:
+        logger.error(f"GUARDRAIL: Repo {team_name} is not test-ready (no tests found). Aborting.")
+        state['repo_path'] = repo_dir
+        state['detected_stack'] = detected_stack
+        state['test_files'] = []
+        state['current_step'] = "DISCOVERY_FAILED"
+        return state
 
     # ── Find Test Files ──
     test_files = []

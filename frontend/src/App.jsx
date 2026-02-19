@@ -13,8 +13,10 @@ import FinalStatus from './components/FinalStatus';
 import SettingsModal from './components/SettingsModal';
 import useAgentStore from './store/useAgentStore';
 
+import ActiveAgents from './components/ActiveAgents';
+
 function App() {
-  const { runComplete } = useAgentStore();
+  const { runComplete, isRunning } = useAgentStore();
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
@@ -34,6 +36,11 @@ function App() {
         <main className="flex-1 overflow-y-auto">
           {/* Stats Row */}
           <StatsRow />
+
+          {/* Active Agents Visualization */}
+          <div className="px-5 pb-1">
+            <ActiveAgents />
+          </div>
 
           {/* Terminal + Performance Metrics */}
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 px-5 pb-4">
@@ -57,11 +64,14 @@ function App() {
                 <ScorePanel />
               </div>
 
-              {/* Fixes Table */}
-              <FixesTable />
-
-              {/* Timeline */}
               <Timeline />
+            </div>
+          )}
+
+          {/* Live Fixes Table (Running or Complete) */}
+          {(runComplete || isRunning) && (
+            <div className="px-5 pb-6">
+              <FixesTable />
             </div>
           )}
         </main>

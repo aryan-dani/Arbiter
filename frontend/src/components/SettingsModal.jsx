@@ -2,12 +2,16 @@ import { X } from 'lucide-react';
 import useAgentStore from '../store/useAgentStore';
 
 export default function SettingsModal({ open, onClose }) {
-  const { repoUrl, teamName, leaderName, setRepoUrl, setTeamName, setLeaderName, isRunning } = useAgentStore();
+  const {
+    repoUrl, teamName, leaderName, aiModel, maxRetries,
+    setRepoUrl, setTeamName, setLeaderName, setAiModel, setMaxRetries,
+    isRunning
+  } = useAgentStore();
 
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
       <div className="bg-arbiter-surface border border-arbiter-border shadow-2xl w-full max-w-lg p-6 animate-slide-in">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -61,6 +65,38 @@ export default function SettingsModal({ open, onClose }) {
                 onChange={(e) => setLeaderName(e.target.value)}
                 disabled={isRunning}
                 className="w-full bg-arbiter-bg border border-arbiter-border px-4 py-2.5 text-[13px] text-arbiter-text placeholder-arbiter-text-dim focus:outline-none focus:ring-1 focus:ring-arbiter-red focus:border-arbiter-red transition disabled:opacity-50"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 border-t border-arbiter-border pt-4 mt-2">
+            <div>
+              <label className="block text-[12px] font-semibold text-arbiter-text-dim uppercase tracking-wider mb-1.5 font-mono">
+                AI Model
+              </label>
+              <select
+                className="w-full bg-arbiter-bg border border-arbiter-border px-4 py-2.5 text-[13px] text-arbiter-text focus:outline-none focus:ring-1 focus:ring-arbiter-red transition appearance-none cursor-pointer"
+                value={aiModel}
+                onChange={(e) => setAiModel(e.target.value)}
+                disabled={isRunning}
+              >
+                <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-[12px] font-semibold text-arbiter-text-dim uppercase tracking-wider mb-1.5 font-mono">
+                Max Retries
+              </label>
+              <input
+                type="number"
+                value={maxRetries}
+                onChange={(e) => setMaxRetries(Number(e.target.value))}
+                disabled={isRunning}
+                min={1}
+                max={10}
+                className="w-full bg-arbiter-bg border border-arbiter-border px-4 py-2.5 text-[13px] text-arbiter-text focus:outline-none focus:ring-1 focus:ring-arbiter-red transition disabled:opacity-50"
               />
             </div>
           </div>

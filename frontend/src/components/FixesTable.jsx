@@ -1,5 +1,6 @@
-import { FileCode, CheckCircle2, XCircle } from 'lucide-react';
+import { FileCode, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
 import useAgentStore from '../store/useAgentStore';
+import { useAgentRealtime } from '../hooks/useAgentRealtime';
 
 const BUG_COLORS = {
   LINTING: 'bg-arbiter-red/20 text-arbiter-red-bright',
@@ -11,15 +12,37 @@ const BUG_COLORS = {
 };
 
 export default function FixesTable() {
-  const { runData } = useAgentStore();
-  if (!runData) return null;
+  const { runData, runId, isRunning } = useAgentStore();
+  const { logs } = useAgentRealtime(runId);
+
+  // Derive fixes from real-time logs if running, otherwise use runData
+  let fixes = [];
+
+  if (isRunning || (logs && logs.length > 0)) {
+    // Real-time mode
+    fixes = logs
+      .filter(l => l.log_type === 'FIX_APPLIED')
+      .map((l, i) => ({
+        id: i + 1,
+        file: l.content.path,
+        bugType: l.content.bug_type,
+        lineNumber: l.content.line,
+        commitMessage: l.content.commit_message,
+        status: 'Fixed' // In real-time, if applied, it's "Fixed" (or pending verification)
+      }));
+  } else if (runData && runData.fixes) {
+    // Post-run mode fallback
+    fixes = runData.fixes;
+  }
+
+  if (fixes.length === 0 && !isRunning) return null;
 
   return (
     <div className="animate-slide-in bg-arbiter-surface border border-arbiter-border p-6 shadow-lg">
       <h2 className="text-lg font-bold text-arbiter-text mb-5 flex items-center gap-2 font-mono">
         <FileCode className="w-5 h-5 text-arbiter-green" />
         Fixes Applied
-        <span className="ml-auto text-xs font-normal text-arbiter-text-dim">{runData.fixes.length} total</span>
+        <span className="ml-auto text-xs font-normal text-arbiter-text-dim">{fixes.length} total</span>
       </h2>
 
       {/* Desktop table */}
@@ -36,7 +59,7 @@ export default function FixesTable() {
             </tr>
           </thead>
           <tbody className="divide-y divide-arbiter-border/50">
-            {runData.fixes.map((fix) => (
+            {fixes.map((fix) => (
               <tr key={fix.id} className="group hover:bg-arbiter-bg/50 transition">
                 <td className="py-3 pr-4 text-arbiter-text-dim font-mono text-xs">{fix.id}</td>
                 <td className="py-3 pr-4 text-arbiter-text font-mono text-xs">{fix.file}</td>
@@ -66,7 +89,7 @@ export default function FixesTable() {
 
       {/* Mobile cards */}
       <div className="md:hidden space-y-3">
-        {runData.fixes.map((fix) => (
+        {fixes.map((fix) => (
           <div key={fix.id} className="bg-arbiter-bg border border-arbiter-border p-4 space-y-2">
             <div className="flex items-center justify-between">
               <span className="font-mono text-xs text-arbiter-text-dim">#{fix.id}</span>
