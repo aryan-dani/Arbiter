@@ -145,6 +145,10 @@ def debugger_node(state: AgentState) -> AgentState:
        linting error BEFORE any pytest failure. Linting errors are deterministic and fast to fix.
     2. PYTEST SECOND: Only address a pytest failure if there are no flake8 errors remaining.
     3. ONE FIX PER ITERATION: Return exactly ONE bug to fix. Do not bundle multiple fixes.
+    4. CONTEXT LOCKDOWN: If a test in tests/test_X.py fails, you are strictly forbidden from suggesting
+       fixes for any file other than src/X.py. Do not attempt to fix 'typos' or 'formatting' in unrelated files.
+       If you do not see a way to fix the failing test in the relevant source file, return STATUS: FAILED.
+
 {exception_notice}
     STRICT ANTI-WANDERING PROTOCOL:
     - READ ONLY the FAILURES section below for your fix target.
@@ -180,7 +184,7 @@ def debugger_node(state: AgentState) -> AgentState:
 
     try:
         response = client.models.generate_content(
-            model='gemini-2.0-flash',
+            model='gemini-2.5-flash',
             contents=prompt,
             config={"response_mime_type": "application/json"}
         )

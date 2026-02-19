@@ -31,19 +31,36 @@ def discovery_node(state: AgentState) -> AgentState:
     )
 
     # ── Ironclad Cleanup: handles Docker root-owned __pycache__ files ──────────
+    # We want to ensure the directory is absolutely gone before cloning.
     if os.path.exists(repo_dir):
-        # First attempt: pure Python (works on Windows and standard Linux)
-        shutil.rmtree(repo_dir, ignore_errors=True)
+        print(f"Discovery: Cleaning up existing directory {repo_dir}...")
+        
+        # Method 1: Standard Python shutil
+        try:
+            shutil.rmtree(repo_dir, onerror=_remove_readonly)
+        except Exception as e:
+            print(f"Discovery: shutil.rmtree failed ({e}), trying subprocess...")
 
-        # Second attempt: if the directory still exists (root-owned files in Docker),
-        # fall back to a subprocess rm -rf which runs with the parent process privileges.
+        # Method 2: Platform-specific subprocess (Force kill)
         if os.path.exists(repo_dir):
             try:
                 import subprocess
-                subprocess.run(["rm", "-rf", repo_dir], check=False)
-                print(f"Discovery: subprocess rm -rf cleaned {repo_dir}")
+                if os.name == 'nt':
+                    # Windows: use rmdir /s /q
+                    subprocess.run(["rmdir", "/s", "/q", repo_dir], shell=True, check=False)
+                else:
+                    # Linux/Docker: use rm -rf (handles root-owned files better)
+                    subprocess.run(["rm", "-rf", repo_dir], check=False)
+                
+                print(f"Discovery: subprocess cleanup attempted.")
             except Exception as rm_err:
-                print(f"Discovery: WARNING - Could not remove {repo_dir}: {rm_err}")
+                print(f"Discovery: WARNING - Subprocess cleanup failed: {rm_err}")
+    
+    # Verify cleanup
+    if os.path.exists(repo_dir):
+        print(f"CRITICAL: Failed to clean {repo_dir}. Cloning might fail or use stale files.")
+    else:
+        print(f"Discovery: Cleanup successful.")
 
     os.makedirs(WORK_DIR, exist_ok=True)
 
