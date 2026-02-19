@@ -107,9 +107,56 @@ def debugger_node(state: AgentState) -> AgentState:
                     except Exception:
                         pass
 
+    # ── TRACEBACK ANCHOR: Context Lockdown ─────────────────────────────────────
+    # We parse the logs to find the *last* src/ file mentioned in the traceback.
+    # This is the "Ground Truth" file where the error actually happened.
+    # We then FORCE the context to contain ONLY this file.
+    
+    traceback_file = None
+    # Regex to find paths like "src/validator.py" or "backend/nodes/git_node.py"
+    # referencing the "src" or "backend" dirs (adjust as needed for user's repo structure)
+    # We want the LAST match because that's usually the deepest point in the stack user owns.
+    matches = re.findall(r'(src/[a-zA-Z0-9_/.-]+\.py)', error_logs)
+    if not matches:
+        # Fallback for backend structure or other patterns
+        matches = re.findall(r'(backend/[a-zA-Z0-9_/.-]+\.py)', error_logs)
+    
+    if matches:
+        traceback_file = matches[-1]
+        print(f"Debugger: Traceback Anchor locked onto -> {traceback_file}")
+    
+    # Filter source_files context
     source_files_context = ""
-    for name, content in source_files.items():
-        source_files_context += f"\n--- FILE: {name} ---\n{content}\n"
+    if traceback_file:
+        # We might have the file in source_files with a slightly different relative path
+        # e.g. "src/validator.py" vs "validator.py" if repo_path root is src (unlikely)
+        # or "validator.py" if os.walk returns relative.
+        # Let's check matching keys.
+        
+        # Normalize keys for comparison
+        target_key = traceback_file.replace('\\', '/')
+        
+        found_content = None
+        for name, content in source_files.items():
+            # Loose matching: if the key ends with the target or vice versa
+            if name.endswith(target_key) or target_key.endswith(name):
+                found_content = content
+                source_files_context = f"\n--- FILE: {name} (LOCKED CONTEXT) ---\n{content}\n"
+                break
+        
+        if not found_content:
+            print(f"Debugger: WARNING - Traceback file {traceback_file} not found in scanned source_files.")
+            # Fallback: include all source files if we can't map it? 
+            # OR better: iterate and include all, trusting the LLM?
+            # User wants STRICT ISOLATION. If we can't find it, maybe we fail?
+            # Let's fallback to standard "include all" but warn.
+            print("Debugger: Fallback to full context.")
+            for name, content in source_files.items():
+                source_files_context += f"\n--- FILE: {name} ---\n{content}\n"
+    else:
+        # No traceback file found - include all (scan mode)
+        for name, content in source_files.items():
+            source_files_context += f"\n--- FILE: {name} ---\n{content}\n"
 
     # ── Key extractions ────────────────────────────────────────────────────────
     failures_section = _extract_failures_section(error_logs)
@@ -131,8 +178,10 @@ def debugger_node(state: AgentState) -> AgentState:
     exception_notice = ""
     if expected_exception:
         exception_notice = (
-            f"\n    CRITICAL EXCEPTION GUARD: The failing test uses pytest.raises({expected_exception}).\n"
-            f"    The fix MUST raise {expected_exception} — NOT ValueError, NOT TypeError, NOT any other exception.\n"
+            f"\n    CRITICAL EXCEPTION GUARD: The failing test calls pytest.raises({expected_exception}).\n"
+            f"    Your fix MUST be to raise {expected_exception} in the source code at the correct logic branch.\n"
+            f"    Do NOT return False or None.\n"
+            f"    Do NOT 'fix' the syntax to make it valid if the test expects it to be invalid (negative test).\n"
             f"    Raising a different exception type will cause the test to fail again.\n"
         )
 
@@ -148,6 +197,9 @@ def debugger_node(state: AgentState) -> AgentState:
     4. CONTEXT LOCKDOWN: If a test in tests/test_X.py fails, you are strictly forbidden from suggesting
        fixes for any file other than src/X.py. Do not attempt to fix 'typos' or 'formatting' in unrelated files.
        If you do not see a way to fix the failing test in the relevant source file, return STATUS: FAILED.
+    5. NEGATIVE LOGIC: If a test failure mentions pytest.raises(ExceptionType), your fix MUST be to raise 
+       ExceptionType in the source code at the correct logic branch. Do not return False. 
+       Do not 'fix' the syntax to make it valid if the test expects it to be invalid.
 
 {exception_notice}
     STRICT ANTI-WANDERING PROTOCOL:
@@ -205,6 +257,10 @@ def debugger_node(state: AgentState) -> AgentState:
                     f" — replace return/False with raise {expected_exception}(...)"
                 )
                 print(f"Debugger: Overriding bug_type SYNTAX→LOGIC for pytest.raises({expected_exception}) case.")
+
+        # Inject traceback_file for Fixer Safety Guard
+        if traceback_file:
+            analysis['traceback_file'] = traceback_file
 
         state['current_analysis'] = analysis
         state['current_step'] = "DEBUG_COMPLETE"

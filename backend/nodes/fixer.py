@@ -35,6 +35,19 @@ def fixer_node(state: AgentState) -> AgentState:
 
     # Also strip any leading slashes
     file_relative_path = file_relative_path.lstrip('/')
+    
+    # ── SAFETY GUARD: Block Hallucinated Source Files ──────────────────────────
+    traceback_file = analysis.get('traceback_file')
+    if traceback_file:
+        # Normalize for comparison
+        tf_norm = traceback_file.replace('\\', '/').strip()
+        rf_norm = file_relative_path.replace('\\', '/').strip()
+        
+        # Loose match: ends with
+        if not (rf_norm.endswith(tf_norm) or tf_norm.endswith(rf_norm)):
+            print(f"Fixer: BLOCKED HALLUCINATION. Traceback says '{tf_norm}' but AI wants to fix '{rf_norm}'")
+            # We must fail this turn so we don't commit garbage
+            return state
 
     file_full_path = os.path.join(repo_path, file_relative_path)
 

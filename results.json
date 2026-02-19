@@ -2195,5 +2195,179 @@
         "retry_count": 4,
         "completed_at": "2026-02-20T00:49:21.323123",
         "started_at": "2026-02-20T00:48:34.365963"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo/",
+        "team_name": "alpa",
+        "leader_name": "mina",
+        "branch_name": "ALPA_MINA_AI_Fix",
+        "final_status": "PASSED",
+        "total_time": 112.04013299942017,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [
+            {
+                "path": "src/validator.py",
+                "bug_type": "SYNTAX",
+                "line": 2,
+                "description": "SYNTAX error in src/validator.py line 2 \u2192 Fix: Added missing colon after 'if value < 0'.",
+                "commit_message": "[AI-AGENT] SYNTAX fix in src/validator.py line 2: Added missing colon after 'if value < 0'."
+            },
+            {
+                "path": "src/utils.py",
+                "bug_type": "LINTING",
+                "line": 1,
+                "description": "LINTING error in src/utils.py line 1 \u2192 Fix: Removed unused import 'os'.",
+                "commit_message": "[AI-AGENT] LINTING fix in src/utils.py line 1: Removed unused import 'os'."
+            },
+            {
+                "path": "src/math_ops.py",
+                "bug_type": "LOGIC",
+                "line": 2,
+                "description": "LOGIC error in src/math_ops.py line 2 \u2192 Fix: Changed subtraction to addition in 'add' function.",
+                "commit_message": "[AI-AGENT] LOGIC fix in src/math_ops.py line 2: Changed subtraction to addition in 'add' function."
+            },
+            {
+                "path": "src/validator.py",
+                "bug_type": "LOGIC",
+                "line": 3,
+                "description": "LOGIC error in src/validator.py line 3 \u2192 Fix: Raise SyntaxError for negative value instead of returning False.",
+                "commit_message": "[AI-AGENT] LOGIC fix in src/validator.py line 3: Raise SyntaxError for negative value instead of returning False."
+            }
+        ],
+        "timeline": [
+            {
+                "timestamp": "2026-02-20T01:09:29.585765",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-20T01:09:50.989292",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-20T01:10:12.311251",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-20T01:10:42.587636",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-20T01:11:09.581839",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 0,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 4,
+        "completed_at": "2026-02-20T01:11:09.585918",
+        "started_at": "2026-02-20T01:09:17.544706"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo/",
+        "team_name": "g",
+        "leader_name": "g",
+        "branch_name": "G_G_AI_Fix",
+        "final_status": "PASSED",
+        "total_time": 77.46837091445923,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [
+            {
+                "path": "src/validator.py",
+                "bug_type": "SYNTAX",
+                "line": 2,
+                "description": "SYNTAX error in src/validator.py line 2 \u2192 Fix: Add missing colon to 'if' statement.",
+                "commit_message": "[AI-AGENT] SYNTAX fix in src/validator.py line 2: Add missing colon to 'if' statement."
+            },
+            {
+                "path": "src/utils.py",
+                "bug_type": "LINTING",
+                "line": 1,
+                "description": "LINTING error in src/utils.py line 1 \u2192 Fix: Remove unused import 'os' statement.",
+                "commit_message": "[AI-AGENT] LINTING fix in src/utils.py line 1: Remove unused import 'os' statement."
+            },
+            {
+                "path": "src/math_ops.py",
+                "bug_type": "LOGIC",
+                "line": 2,
+                "description": "LOGIC error in src/math_ops.py line 2 \u2192 Fix: Changed subtraction to addition in 'add' function.",
+                "commit_message": "[AI-AGENT] LOGIC fix in src/math_ops.py line 2: Changed subtraction to addition in 'add' function."
+            },
+            {
+                "path": "src/validator.py",
+                "bug_type": "LOGIC",
+                "line": 3,
+                "description": "LOGIC error in src/validator.py line 3 \u2192 Fix: Replace return False with raise SyntaxError.",
+                "commit_message": "[AI-AGENT] LOGIC fix in src/validator.py line 3: Replace return False with raise SyntaxError."
+            }
+        ],
+        "timeline": [
+            {
+                "timestamp": "2026-02-20T01:20:11.699013",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-20T01:20:32.370043",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-20T01:20:47.634519",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-20T01:21:04.905523",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-20T01:21:22.717385",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 0,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 4,
+        "completed_at": "2026-02-20T01:21:22.720042",
+        "started_at": "2026-02-20T01:20:05.250889"
     }
 ]
