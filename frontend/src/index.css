@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+/* ── Theme tokens ── */
+@theme {
+  --color-arbiter-bg: #0B0808;
+  --color-arbiter-surface: #111010;
+  --color-arbiter-border: #30363D;
+  --color-arbiter-border-subtle: #21262D;
+  --color-arbiter-red: #9F2708;
+  --color-arbiter-red-bright: #C43A15;
+  --color-arbiter-text: #FAF9FA;
+  --color-arbiter-text-muted: #8B949E;
+  --color-arbiter-text-dim: #484F58;
+  --color-arbiter-green: #2EA043;
+  --color-arbiter-amber: #D29922;
+
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ── Base ── */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  background: var(--color-arbiter-bg);
+  font-family: var(--font-sans);
+  color: var(--color-arbiter-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--color-arbiter-bg); }
+::-webkit-scrollbar-thumb { background: var(--color-arbiter-border); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-arbiter-text-dim); }
+
+/* ── Animations ── */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(159,39,8,0.3); }
+  50% { box-shadow: 0 0 20px rgba(159,39,8,0.6); }
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes terminal-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.35s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+.glow-red {
+  animation: pulse-glow 2.5s ease-in-out infinite;
+}
+
+.cursor-blink {
+  animation: terminal-blink 1s step-end infinite;
+}
+
+/* ── Noise texture overlay ── */
+.noise-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Grid lines pattern ── */
+.grid-pattern {
+  background-image:
+    linear-gradient(rgba(48,54,61,0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(48,54,61,0.3) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
