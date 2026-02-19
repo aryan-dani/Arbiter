@@ -97,7 +97,7 @@ async def run_healing_workflow(request: HealingRequest, run_id: str = None):
         final_score=0,
         is_healing_complete=False,
         current_analysis={},
-        current_analysis={},
+
         # Rate Limiting (Default: 5 loops max to prevent infinite API usage)
         max_iterations=request.max_iterations,
         iterations=0,
@@ -150,7 +150,9 @@ async def run_healing_workflow(request: HealingRequest, run_id: str = None):
             run_id=run_id,
             score=final_score,
             duration=duration,
-            status=final_state.get('final_status', 'UNKNOWN')
+            status=final_state.get('final_status', 'UNKNOWN'),
+            pr_url=final_state.get('pr_url'),
+            branch_name=_branch_name(final_state['team_name'], final_state['leader_name'])
         )
 
         # Load and append

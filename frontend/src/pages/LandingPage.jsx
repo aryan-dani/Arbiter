@@ -141,8 +141,8 @@ function BentoTile({ icon: Icon, title, description, children, className = '', s
       className={`border border-arbiter-border bg-arbiter-surface p-6 relative overflow-hidden group ${span} ${className}`}
     >
       {/* Corner accent */}
-      <div className="absolute top-0 left-0 w-8 h-[1px] bg-arbiter-red" />
-      <div className="absolute top-0 left-0 w-[1px] h-8 bg-arbiter-red" />
+      <div className="absolute top-0 left-0 w-8 h-px bg-arbiter-red" />
+      <div className="absolute top-0 left-0 w-px h-8 bg-arbiter-red" />
 
       <div className="relative z-10">
         <div className="flex items-center gap-3 mb-4">
@@ -258,9 +258,9 @@ export default function LandingPage() {
   const isHeroInView = useInView(heroRef, { once: true });
 
   return (
-    <div className="min-h-screen bg-arbiter-bg text-arbiter-text relative noise-overlay overflow-x-hidden">
+    <div className="min-h-screen bg-arbiter-bg text-arbiter-text relative overflow-x-hidden">
       {/* ── NAVIGATION ── */}
-      <nav className="border-b border-arbiter-border sticky top-0 z-50 bg-arbiter-bg/90 backdrop-blur-sm">
+      <nav className="border-b border-arbiter-border sticky top-0 z-50 bg-arbiter-bg/95 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Shield className="w-5 h-5 text-arbiter-red-bright" />
@@ -269,15 +269,19 @@ export default function LandingPage() {
               v2.1.0
             </span>
           </div>
-          <div className="flex items-center gap-4">
-            <a href="#features" className="hidden md:inline text-[12px] text-arbiter-text-muted hover:text-arbiter-text transition font-medium tracking-wide">
-              Features
-            </a>
-            <a href="#specs" className="hidden md:inline text-[12px] text-arbiter-text-muted hover:text-arbiter-text transition font-medium tracking-wide">
-              Technical Specs
+          <div className="flex items-center gap-6">
+            <a href="#features" className="hidden md:inline text-[13px] text-arbiter-text-muted hover:text-arbiter-text transition font-medium tracking-wide">
+              Capabilities
             </a>
             <button
               onClick={() => navigate('/dashboard')}
+              className="text-[13px] text-arbiter-text-muted hover:text-arbiter-text transition font-medium tracking-wide"
+            >
+              Dashboard
+            </button>
+            <div className="w-px h-4 bg-arbiter-border hidden md:block" />
+            <button
+              onClick={() => navigate('/run')}
               className="font-mono text-[12px] font-bold text-arbiter-bg bg-arbiter-text px-4 py-1.5 hover:bg-arbiter-text/90 transition tracking-wide"
             >
               LAUNCH →
@@ -291,7 +295,7 @@ export default function LandingPage() {
         {/* Grid background */}
         <div className="absolute inset-0 grid-pattern opacity-50" />
         {/* Red gradient glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-arbiter-red/8 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-arbiter-red/8 rounded-full blur-[80px] pointer-events-none" />
 
         <motion.div
           ref={heroRef}
@@ -332,10 +336,10 @@ export default function LandingPage() {
               {/* CTA */}
               <motion.div variants={fadeUp} className="mt-8 flex flex-col sm:flex-row items-start gap-3">
                 <button
-                  onClick={() => navigate('/dashboard')}
+                  onClick={() => navigate('/run')}
                   className="group flex items-center gap-2.5 bg-arbiter-red hover:bg-arbiter-red-bright text-white font-mono font-bold text-[13px] px-6 py-3 tracking-wide transition-all glow-red"
                 >
-                  Launch Arbiter Dashboard
+                  Launch Arbiter
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </button>
                 <a
@@ -349,9 +353,9 @@ export default function LandingPage() {
               {/* Stats row */}
               <motion.div variants={fadeUp} className="mt-12 flex items-center gap-8 md:gap-12">
                 <StatNumber value="4,721" label="Runs Completed" />
-                <div className="w-[1px] h-10 bg-arbiter-border" />
+                <div className="w-px h-10 bg-arbiter-border" />
                 <StatNumber value="94.2" suffix="%" label="Success Rate" />
-                <div className="w-[1px] h-10 bg-arbiter-border hidden sm:block" />
+                <div className="w-px h-10 bg-arbiter-border hidden sm:block" />
                 <div className="hidden sm:block">
                   <StatNumber value="2m 34s" label="Avg Heal Time" />
                 </div>
@@ -381,7 +385,7 @@ export default function LandingPage() {
             </motion.div>
 
             {/* Bento Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[1px] bg-arbiter-border">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-arbiter-border">
               {/* Tile A: Multi-Agent Consensus */}
               <BentoTile
                 icon={Users}
@@ -480,65 +484,16 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── TECHNICAL SPECS FOOTER ── */}
-      <footer id="specs" className="border-t border-arbiter-border bg-arbiter-surface">
-        <div className="max-w-6xl mx-auto px-5 py-12">
-          <div className="flex flex-col lg:flex-row justify-between gap-10">
-            {/* Brand */}
-            <div className="max-w-xs">
-              <div className="flex items-center gap-2 mb-3">
-                <Shield className="w-4 h-4 text-arbiter-red-bright" />
-                <span className="font-mono font-extrabold text-[13px] tracking-tight">THE ARBITER</span>
-              </div>
-              <p className="text-[12px] text-arbiter-text-dim leading-relaxed">
-                An autonomous CI/CD healing agent built for the RIFT 2026 Hackathon.
-                Multi-agent. Self-healing. Zero intervention.
-              </p>
-            </div>
-
-            {/* Tech Stack */}
-            <div>
-              <span className="font-mono text-[10px] text-arbiter-text-dim tracking-[0.2em] font-bold block mb-3">AGENT STACK</span>
-              <div className="flex flex-wrap gap-2">
-                <TechBadge icon={Layers} label="LangGraph" />
-                <TechBadge icon={Box} label="Docker" />
-                <TechBadge icon={Database} label="Supabase" />
-                <TechBadge icon={Code2} label="GPT-4o" />
-                <TechBadge icon={Terminal} label="GitHub API" />
-                <TechBadge icon={GitBranch} label="CI/CD" />
-              </div>
-            </div>
-
-            {/* Scoring */}
-            <div>
-              <span className="font-mono text-[10px] text-arbiter-text-dim tracking-[0.2em] font-bold block mb-3">SCORING MODEL</span>
-              <div className="space-y-1.5 font-mono text-[11px]">
-                <div className="flex justify-between gap-6">
-                  <span className="text-arbiter-text-dim">Base Score</span>
-                  <span className="text-arbiter-text font-bold">100</span>
-                </div>
-                <div className="flex justify-between gap-6">
-                  <span className="text-arbiter-text-dim">Speed Bonus ({"<"}5m)</span>
-                  <span className="text-arbiter-green font-bold">+10</span>
-                </div>
-                <div className="flex justify-between gap-6">
-                  <span className="text-arbiter-text-dim">Commit Penalty ({">"}20)</span>
-                  <span className="text-arbiter-red-bright font-bold">-2/ea</span>
-                </div>
-              </div>
-            </div>
+      {/* ── FOOTER ── */}
+      <footer className="border-t border-arbiter-border bg-arbiter-surface py-8">
+        <div className="max-w-6xl mx-auto px-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Shield className="w-4 h-4 text-arbiter-red-bright" />
+            <span className="font-mono font-bold text-[12px] tracking-tight text-arbiter-text">THE ARBITER</span>
           </div>
-
-          {/* Bottom bar */}
-          <div className="mt-10 pt-6 border-t border-arbiter-border flex flex-col sm:flex-row items-center justify-between gap-3">
-            <span className="font-mono text-[10px] text-arbiter-text-dim tracking-wider">
-              © 2026 THE ARBITER · RIFT HACKATHON · AI/ML DEVOPS AUTOMATION
-            </span>
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-arbiter-green" />
-              <span className="font-mono text-[10px] text-arbiter-green tracking-widest font-bold">ALL SYSTEMS OPERATIONAL</span>
-            </div>
-          </div>
+          <span className="font-mono text-[10px] text-arbiter-text-dim tracking-wider text-center sm:text-right">
+            © 2026 RIFT HACKATHON · AI/ML DEVOPS AUTOMATION
+          </span>
         </div>
       </footer>
     </div>

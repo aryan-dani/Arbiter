@@ -69,6 +69,18 @@ export default function ActionBar({ onOpenSettings }) {
           </button>
         )}
 
+        {runData?.prUrl && (
+          <a
+            href={runData.prUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 bg-arbiter-surface border border-arbiter-border text-arbiter-text hover:text-arbiter-green hover:border-arbiter-green text-[13px] font-mono font-medium px-4 py-2 transition"
+          >
+            <GitBranch className="w-4 h-4" />
+            View PR
+          </a>
+        )}
+
         <button
           onClick={handleExecute}
           className="flex items-center gap-2 border border-arbiter-border text-arbiter-text-muted hover:bg-arbiter-surface hover:text-arbiter-text text-[13px] font-mono font-medium px-4 py-2 transition"

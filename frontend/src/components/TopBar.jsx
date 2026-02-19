@@ -1,4 +1,5 @@
 import { Shield, RefreshCw, Clock, Wrench, Terminal } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
 import useAgentStore from '../store/useAgentStore';
 
 export default function TopBar() {
@@ -25,14 +26,24 @@ export default function TopBar() {
   return (
     <header className="flex items-center justify-between px-5 py-3 bg-arbiter-surface border-b border-arbiter-border">
       {/* Left: title */}
-      <div className="flex items-center gap-3">
-        <Shield className="w-5 h-5 text-arbiter-red-bright" />
-        <h1 className="text-[17px] font-extrabold text-arbiter-text tracking-tight font-mono">The Arbiter</h1>
-        <span className="hidden sm:inline text-[10px] text-arbiter-text-dim font-mono border border-arbiter-border px-1.5 py-0.5 tracking-widest">v2.1.0</span>
-        <span className="hidden lg:flex items-center gap-1.5 text-[12px] text-arbiter-text-dim ml-1">
-          <Terminal className="w-3.5 h-3.5" />
-          Autonomous CI/CD Healing Agent
-        </span>
+      <div className="flex items-center gap-6">
+        <div className="flex items-center gap-3">
+          <Shield className="w-5 h-5 text-arbiter-red-bright" />
+          <h1 className="text-[17px] font-extrabold text-arbiter-text tracking-tight font-mono">The Arbiter</h1>
+        </div>
+
+        {/* Navigation */}
+        <nav className="hidden md:flex items-center gap-1">
+          <NavLink to="/" className={({ isActive }) => `px-3 py-1.5 text-[13px] font-mono font-bold tracking-wide transition-colors ${isActive ? 'text-arbiter-text bg-arbiter-surface border border-arbiter-border rounded' : 'text-arbiter-text-muted hover:text-arbiter-text'}`}>
+            Home
+          </NavLink>
+          <NavLink to="/run" className={({ isActive }) => `px-3 py-1.5 text-[13px] font-mono font-bold tracking-wide transition-colors ${isActive ? 'text-arbiter-text bg-arbiter-surface border border-arbiter-border rounded' : 'text-arbiter-text-muted hover:text-arbiter-text'}`}>
+            Run
+          </NavLink>
+          <NavLink to="/dashboard" className={({ isActive }) => `px-3 py-1.5 text-[13px] font-mono font-bold tracking-wide transition-colors ${isActive ? 'text-arbiter-text bg-arbiter-surface border border-arbiter-border rounded' : 'text-arbiter-text-muted hover:text-arbiter-text'}`}>
+            History
+          </NavLink>
+        </nav>
       </div>
 
       {/* Right: real run metrics */}

@@ -276,6 +276,7 @@ const useAgentStore = create((set, get) => ({
                 teamName: result.team_name,
                 leaderName: result.leader_name,
                 branchName: result.branch_name || generateBranchName(result.team_name, result.leader_name),
+                prUrl: result.pr_url,
                 totalFixes: commitCount,
                 totalFailures: result.final_status === 'PASSED' ? 0 : 1,
                 totalCommits: commitCount,

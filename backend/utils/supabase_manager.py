@@ -60,7 +60,7 @@ class SupabaseManager:
         except Exception as e:
             print(f"Supabase Error (update_node_status): {e}")
 
-    def finalize_run(self, run_id: str, score: int, duration: float, status: str):
+    def finalize_run(self, run_id: str, score: int, duration: float, status: str, pr_url: Optional[str] = None, branch_name: Optional[str] = None):
         """Updates the final status of a run."""
         if not self.enabled or not run_id:
             return
@@ -69,7 +69,9 @@ class SupabaseManager:
             data = {
                 "final_score": score,
                 "duration": duration,
-                "status": status
+                "status": status,
+                "pr_url": pr_url,
+                "branch_name": branch_name
             }
             self.client.table("agent_runs").update(data).eq("id", run_id).execute()
         except Exception as e:
