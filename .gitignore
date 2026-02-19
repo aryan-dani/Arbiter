@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+temp_dummy_repo/
+backend/.env
+venv/
+.env

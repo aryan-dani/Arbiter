@@ -1,0 +1,176 @@
+[
+    {
+        "repo_url": "https://github.com/aryan-dani/Portfolio",
+        "team_name": "paneer",
+        "leader_name": "aryan",
+        "branch_name": "PANEER_ARYAN_AI_Fix",
+        "final_status": "FAILED",
+        "total_time": 2.5000851154327393,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [],
+        "timeline": [
+            {
+                "timestamp": "2026-02-19T16:45:31.419298",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 127,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-19T16:45:31.891070",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 127,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-19T16:45:32.378489",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 127,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-19T16:45:32.859171",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 127,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-19T16:45:33.332920",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 127,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 5,
+        "completed_at": "2026-02-19T16:45:33.335063",
+        "started_at": "2026-02-19T16:45:30.834353"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/Portfolio",
+        "team_name": "paneer",
+        "leader_name": "aryan",
+        "branch_name": "PANEER_ARYAN_AI_Fix",
+        "final_status": "FAILED",
+        "total_time": 3.446133852005005,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [],
+        "timeline": [
+            {
+                "timestamp": "2026-02-19T16:46:29.617801",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 127,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-19T16:46:30.247182",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 127,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-19T16:46:31.028328",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 127,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-19T16:46:31.626206",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 127,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-19T16:46:32.368878",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 127,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 5,
+        "completed_at": "2026-02-19T16:46:32.370999",
+        "started_at": "2026-02-19T16:46:28.923824"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/Portfolio",
+        "team_name": "paneer",
+        "leader_name": "aryan",
+        "branch_name": "PANEER_ARYAN_AI_Fix",
+        "final_status": "FAILED",
+        "total_time": 46.45441699028015,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [],
+        "timeline": [
+            {
+                "timestamp": "2026-02-19T16:50:47.380797",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-19T16:50:50.559219",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-19T16:50:53.768374",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-19T16:50:56.680543",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-19T16:50:59.999845",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 5,
+        "completed_at": "2026-02-19T16:51:00.001944",
+        "started_at": "2026-02-19T16:50:13.546954"
+    }
+]
