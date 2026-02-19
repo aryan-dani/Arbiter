@@ -5,7 +5,9 @@ import stat
 from git import Repo
 from backend.state import AgentState
 
-WORK_DIR = os.path.join(os.getcwd(), "temp_repos")
+# Use absolute path for temp_repos relative to project root (3 levels up from nodes/discovery.py)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+WORK_DIR = os.path.join(BASE_DIR, "temp_repos")
 
 
 def _remove_readonly(func, path, _):

@@ -8,7 +8,14 @@ def tester_node(state: AgentState) -> AgentState:
     Spins up a Docker container to run tests (sandboxed).
     """
     print("Tester Node Started...")
-    client = docker.from_env()
+    try:
+        client = docker.from_env()
+        client.ping()
+    except Exception:
+        # Fallback for Windows named pipe if from_env fails
+        print("    docker.from_env() failed, attempting Windows named pipe connection...")
+        client = docker.DockerClient(base_url='npipe:////./pipe/docker_engine')
+
     repo_path = state['repo_path']
     stack = state['detected_stack']
 
@@ -17,12 +24,12 @@ def tester_node(state: AgentState) -> AgentState:
 
     try:
         if stack == "PYTHON":
-            # Install deps if requirements.txt exists, then run pytest
+            # Suppress pip noise → only pytest output reaches the debugger
             command = (
                 "bash -c '"
-                "([ -f requirements.txt ] && pip install -r requirements.txt --quiet) 2>&1; "
-                "pip install pytest --quiet 2>&1; "
-                "pytest -v --tb=short 2>&1'"
+                "pip install pytest --quiet -q > /dev/null 2>&1; "
+                "([ -f requirements.txt ] && pip install -r requirements.txt --quiet -q > /dev/null 2>&1); "
+                "pytest -v --tb=long 2>&1'"
             )
             image = "python:3.11-slim"
 
@@ -30,7 +37,7 @@ def tester_node(state: AgentState) -> AgentState:
             # Use full node image (has bash + more tools)
             command = (
                 "bash -c '"
-                "npm install 2>&1 && "
+                "npm install --silent 2>/dev/null && "
                 "(npm test 2>&1 || true)'"
             )
             image = "node:18"   # Full Debian image, has bash
@@ -39,9 +46,9 @@ def tester_node(state: AgentState) -> AgentState:
             print(f"Unknown or undetected stack: '{stack}'. Defaulting to Python with pytest.")
             command = (
                 "bash -c '"
-                "([ -f requirements.txt ] && pip install -r requirements.txt --quiet) 2>&1; "
-                "pip install pytest --quiet 2>&1; "
-                "pytest -v --tb=short 2>&1'"
+                "pip install pytest --quiet -q > /dev/null 2>&1; "
+                "([ -f requirements.txt ] && pip install -r requirements.txt --quiet -q > /dev/null 2>&1); "
+                "pytest -v --tb=long 2>&1'"
             )
             image = "python:3.11-slim"
 
@@ -89,7 +96,18 @@ def tester_node(state: AgentState) -> AgentState:
         }
     })
 
-    state['error_logs'] = container_logs
+    # Strip pip noise lines so debugger sees clean pytest output
+    def _clean_logs(raw: str) -> str:
+        skip_prefixes = (
+            "WARNING: Running pip",
+            "[notice]",
+            "Defaulting to user installation",
+        )
+        lines = [l for l in raw.splitlines() if not any(l.strip().startswith(p) for p in skip_prefixes)]
+        return "\n".join(lines).strip()
+
+    clean_logs = _clean_logs(container_logs)
+    state['error_logs'] = clean_logs  # Full clean pytest output for debugger
     state['timeline'] = timeline
 
     if exit_code == 0:
@@ -102,6 +120,6 @@ def tester_node(state: AgentState) -> AgentState:
     state['current_step'] = "TESTING_COMPLETE"
 
     print(f"Testing Complete. Exit Code: {exit_code}")
-    print(f"Container Logs:\n{container_logs[:500]}{'...' if len(container_logs) > 500 else ''}")
+    print(f"Container Logs:\n{clean_logs[:800]}{'...' if len(clean_logs) > 800 else ''}")
 
     return state

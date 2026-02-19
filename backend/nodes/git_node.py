@@ -92,51 +92,54 @@ def git_node(state: AgentState) -> AgentState:
         print(f"Git: Pushed branch '{branch_name}' to origin.")
         state['branch_pushed'] = True
 
-        # ── Open a Pull Request via GitHub REST API ───────────────────
-        try:
-            import urllib.request
-            import json as _json
+        # ── Open a Pull Request only on the first push ───────────────
+        if not state.get('pr_url') and github_token:
+            try:
+                import urllib.request
+                import json as _json
 
-            # Parse owner/repo from clean remote URL (no token)
-            # e.g. https://github.com/aryan-dani/rift-test-buggy-repo
-            clean_url = clean_remote_url.replace("https://", "").replace(".git", "")
-            parts = clean_url.strip("/").split("/")  # ['github.com', 'owner', 'repo']
-            if len(parts) >= 3:
-                owner, repo_name = parts[-2], parts[-1]
+                # Parse owner/repo from clean remote URL (no token)
+                clean_url = clean_remote_url.replace("https://", "").replace(".git", "")
+                parts = clean_url.strip("/").split("/")  # ['github.com', 'owner', 'repo']
+                if len(parts) >= 3:
+                    owner, repo_name = parts[-2], parts[-1]
 
-                pr_body = {
-                    "title": f"[AI-AGENT] Autonomous CI/CD Fix — {branch_name}",
-                    "body": (
-                        "## AI-Agent Auto-Fix\n\n"
-                        "This pull request was created automatically by the **RIFT 2026 CI/CD Healing Agent**.\n\n"
-                        f"**Branch:** `{branch_name}`\n"
-                        f"**Fixes Applied:** {len(state.get('fixes_applied', []))}\n\n"
-                        "All changes were committed with the `[AI-AGENT]` prefix."
-                    ),
-                    "head": branch_name,
-                    "base": "main",
-                }
+                    pr_body = {
+                        "title": f"[AI-AGENT] Autonomous CI/CD Fix — {branch_name}",
+                        "body": (
+                            "## AI-Agent Auto-Fix\n\n"
+                            "This pull request was created automatically by the **RIFT 2026 CI/CD Healing Agent**.\n\n"
+                            f"**Branch:** `{branch_name}`\n"
+                            f"**Fixes Applied:** {len(state.get('fixes_applied', []))}\n\n"
+                            "All changes were committed with the `[AI-AGENT]` prefix."
+                        ),
+                        "head": branch_name,
+                        "base": "main",
+                    }
 
-                pr_data = _json.dumps(pr_body).encode("utf-8")
-                pr_url = f"https://api.github.com/repos/{owner}/{repo_name}/pulls"
-                req = urllib.request.Request(
-                    pr_url,
-                    data=pr_data,
-                    headers={
-                        "Authorization": f"token {github_token}",
-                        "Accept": "application/vnd.github.v3+json",
-                        "Content-Type": "application/json",
-                        "User-Agent": "RIFT2026-Agent",
-                    },
-                    method="POST",
-                )
-                with urllib.request.urlopen(req) as resp:
-                    pr_result = _json.loads(resp.read().decode())
-                    pr_html_url = pr_result.get("html_url", "")
-                    print(f"Git: PR created → {pr_html_url}")
-                    state['pr_url'] = pr_html_url
-        except Exception as pr_err:
-            print(f"Git: PR creation failed (branch was pushed OK): {pr_err}")
+                    pr_data = _json.dumps(pr_body).encode("utf-8")
+                    pr_api_url = f"https://api.github.com/repos/{owner}/{repo_name}/pulls"
+                    req = urllib.request.Request(
+                        pr_api_url,
+                        data=pr_data,
+                        headers={
+                            "Authorization": f"token {github_token}",
+                            "Accept": "application/vnd.github.v3+json",
+                            "Content-Type": "application/json",
+                            "User-Agent": "RIFT2026-Agent",
+                        },
+                        method="POST",
+                    )
+                    with urllib.request.urlopen(req) as resp:
+                        pr_result = _json.loads(resp.read().decode())
+                        pr_html_url = pr_result.get("html_url", "")
+                        print(f"Git: PR created → {pr_html_url}")
+                        state['pr_url'] = pr_html_url
+            except Exception as pr_err:
+                print(f"Git: PR creation failed (branch was pushed OK): {pr_err}")
+        elif state.get('pr_url'):
+            print(f"Git: PR already open at {state['pr_url']} — skipping duplicate creation.")
+
 
     except Exception as e:
         print(f"Git: Push failed (will continue without push): {e}")

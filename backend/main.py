@@ -6,7 +6,12 @@ import asyncio
 from datetime import datetime
 import os
 import json
+import sys
 from dotenv import load_dotenv
+
+# Ensure we can import from backend package even if running from inside backend folder
+# This adds the parent directory of 'backend' (i.e., the project root) to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Load environment variables — always use backend/.env regardless of CWD
 _env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
@@ -26,7 +31,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-RESULTS_FILE = "results.json"
+# Use absolute path for results.json so it's always in the project root
+RESULTS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "results.json")
 
 # ── In-memory run status tracker ──────────────────────────────────
 run_status: dict = {}   # keyed by team_name for simplicity
