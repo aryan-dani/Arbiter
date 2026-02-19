@@ -144,13 +144,23 @@ async def run_healing_workflow(request: HealingRequest, run_id: str = None):
         }
 
         # Update Supabase Final Status
+        # Map state statuses to DB-compliant statuses (PASSED, FAILED, ERROR)
+        status_map = {
+            "PASSED": "PASSED",
+            "FAILED": "FAILED",
+            "ERROR": "FAILED",
+            "DISCOVERY_FAILED": "FAILED",
+            "NO_BUGS_FOUND": "PASSED" # If we found no bugs, the CI is effectively clean
+        }
+        db_status = status_map.get(final_state.get('final_status'), 'FAILED')
+
         supabase.finalize_run(
             run_id=run_id,
             score=final_score,
             duration=duration,
-            status=final_state.get('final_status', 'UNKNOWN'),
+            status=db_status,
             pr_url=final_state.get('pr_url'),
-            branch_name=_branch_name(final_state['team_name'], final_state['leader_name'])
+            branch_name=final_state.get('branch_name') or _branch_name(final_state['team_name'], final_state['leader_name'])
         )
 
         # Load and append

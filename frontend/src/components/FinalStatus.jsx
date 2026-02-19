@@ -1,4 +1,4 @@
-import { ShieldCheck, ShieldAlert, GitBranch, Clock, Hash } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, GitBranch, Clock, Hash, ExternalLink } from 'lucide-react';
 import useAgentStore from '../store/useAgentStore';
 
 export default function FinalStatus() {
@@ -9,20 +9,18 @@ export default function FinalStatus() {
 
   return (
     <div
-      className={`animate-slide-in p-6 md:p-8 shadow-lg border-2 transition-all ${
-        passed
-          ? 'bg-arbiter-green/10 border-arbiter-green/40'
-          : 'bg-arbiter-red/10 border-arbiter-red-bright/40'
-      }`}
+      className={`animate-slide-in p-6 md:p-8 shadow-lg border-2 transition-all ${passed
+        ? 'bg-arbiter-green/10 border-arbiter-green/40'
+        : 'bg-arbiter-red/10 border-arbiter-red-bright/40'
+        }`}
     >
       <div className="flex flex-col sm:flex-row items-center gap-6">
         {/* Badge */}
         <div
-          className={`w-20 h-20 flex items-center justify-center shrink-0 ${
-            passed
-              ? 'bg-arbiter-green/20'
-              : 'bg-arbiter-red/20'
-          }`}
+          className={`w-20 h-20 flex items-center justify-center shrink-0 ${passed
+            ? 'bg-arbiter-green/20'
+            : 'bg-arbiter-red/20'
+            }`}
           style={
             passed
               ? { animation: 'pulse-glow 2s ease-in-out infinite', boxShadow: '0 0 20px rgba(46,160,67,0.4)' }
@@ -39,9 +37,8 @@ export default function FinalStatus() {
         {/* Text */}
         <div className="text-center sm:text-left flex-1">
           <h2
-            className={`text-3xl md:text-4xl font-black tracking-wide font-mono ${
-              passed ? 'text-arbiter-green' : 'text-arbiter-red-bright'
-            }`}
+            className={`text-3xl md:text-4xl font-black tracking-wide font-mono ${passed ? 'text-arbiter-green' : 'text-arbiter-red-bright'
+              }`}
           >
             {passed ? 'PASSED' : 'FAILED'}
           </h2>
@@ -76,10 +73,37 @@ export default function FinalStatus() {
         </div>
       </div>
 
-      {/* Completed timestamp */}
-      <p className="text-[11px] text-arbiter-text-dim text-center mt-4 font-mono">
-        Completed at {new Date(completedAt).toLocaleString()}
-      </p>
+      {/* Completed timestamp & Actions */}
+      <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <p className="text-[11px] text-arbiter-text-dim font-mono order-2 sm:order-1">
+          Completed at {new Date(completedAt).toLocaleString()}
+        </p>
+
+        <div className="flex items-center gap-3 order-1 sm:order-2">
+          {runData.prUrl && (
+            <a
+              href={runData.prUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 bg-arbiter-text text-arbiter-bg px-5 py-2 text-[12px] font-mono font-bold hover:bg-arbiter-text/90 transition shadow-lg"
+            >
+              <ExternalLink className="w-4 h-4" />
+              VIEW PULL REQUEST
+            </a>
+          )}
+          {runData.repoUrl && branchName && !runData.prUrl && (
+            <a
+              href={`${runData.repoUrl.replace('.git', '')}/tree/${branchName}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 bg-arbiter-surface border border-arbiter-border text-arbiter-text px-5 py-2 text-[12px] font-mono font-bold hover:border-arbiter-red/40 transition shadow-sm"
+            >
+              <GitBranch className="w-4 h-4" />
+              VIEW BRANCH
+            </a>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

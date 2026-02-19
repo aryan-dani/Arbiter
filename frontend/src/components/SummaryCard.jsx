@@ -1,4 +1,4 @@
-import { GitBranch, Users, Bug, Wrench, Globe } from 'lucide-react';
+import { GitBranch, Users, Bug, Wrench, Globe, ExternalLink } from 'lucide-react';
 import useAgentStore from '../store/useAgentStore';
 
 function Stat({ icon: Icon, label, value, color = 'text-arbiter-text' }) {
@@ -39,10 +39,35 @@ export default function SummaryCard() {
       </div>
 
       {/* Branch Name Chip */}
-      <div className="flex items-center gap-2 bg-arbiter-bg px-4 py-2.5 border border-arbiter-border">
-        <GitBranch className="w-4 h-4 text-arbiter-red-bright shrink-0" />
-        <span className="text-xs text-arbiter-text-dim font-mono">Branch:</span>
-        <code className="text-sm font-mono text-arbiter-red-bright break-all">{branchName}</code>
+      <div className="flex items-center justify-between bg-arbiter-bg px-4 py-2.5 border border-arbiter-border">
+        <div className="flex items-center gap-2">
+          <GitBranch className="w-4 h-4 text-arbiter-red-bright shrink-0" />
+          <span className="text-xs text-arbiter-text-dim font-mono">Branch:</span>
+          <code className="text-sm font-mono text-arbiter-red-bright break-all">{branchName}</code>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {runData.prUrl && (
+            <a
+              href={runData.prUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-arbiter-green hover:text-arbiter-green/80 flex items-center gap-1 text-[11px] font-mono font-bold"
+            >
+              PR <ExternalLink className="w-3 h-3" />
+            </a>
+          )}
+          {runData.repoUrl && branchName && (
+            <a
+              href={`${runData.repoUrl.replace('.git', '')}/tree/${branchName}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-arbiter-text-muted hover:text-arbiter-text flex items-center gap-1 text-[11px] font-mono"
+            >
+              BROWSE <ExternalLink className="w-3 h-3" />
+            </a>
+          )}
+        </div>
       </div>
     </div>
   );
