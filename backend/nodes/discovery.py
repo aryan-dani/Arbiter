@@ -30,12 +30,20 @@ def discovery_node(state: AgentState) -> AgentState:
         f"{team_name}_{os.path.basename(repo_url.rstrip('/')).replace('.git', '')}"
     )
 
-    # Clean up previous clone if exists
+    # ── Ironclad Cleanup: handles Docker root-owned __pycache__ files ──────────
     if os.path.exists(repo_dir):
-        try:
-            shutil.rmtree(repo_dir, onerror=_remove_readonly)
-        except Exception as e:
-            print(f"Warning: Could not clean up {repo_dir}: {e}")
+        # First attempt: pure Python (works on Windows and standard Linux)
+        shutil.rmtree(repo_dir, ignore_errors=True)
+
+        # Second attempt: if the directory still exists (root-owned files in Docker),
+        # fall back to a subprocess rm -rf which runs with the parent process privileges.
+        if os.path.exists(repo_dir):
+            try:
+                import subprocess
+                subprocess.run(["rm", "-rf", repo_dir], check=False)
+                print(f"Discovery: subprocess rm -rf cleaned {repo_dir}")
+            except Exception as rm_err:
+                print(f"Discovery: WARNING - Could not remove {repo_dir}: {rm_err}")
 
     os.makedirs(WORK_DIR, exist_ok=True)
 
@@ -44,6 +52,16 @@ def discovery_node(state: AgentState) -> AgentState:
         Repo.clone_from(repo_url, repo_dir)
     except Exception as e:
         print(f"CRITICAL: Clone failed: {e}")
+        state['repo_path'] = repo_dir
+        state['detected_stack'] = "UNKNOWN"
+        state['test_files'] = []
+        state['current_step'] = "DISCOVERY_FAILED"
+        return state
+
+    # ── Clone sanity check: prevent False-Green on zombie directory ───────────
+    cloned_files = os.listdir(repo_dir) if os.path.exists(repo_dir) else []
+    if not cloned_files:
+        print("CRITICAL: Clone directory is empty — treating as clone failure.")
         state['repo_path'] = repo_dir
         state['detected_stack'] = "UNKNOWN"
         state['test_files'] = []
@@ -88,6 +106,16 @@ def discovery_node(state: AgentState) -> AgentState:
         if "node_modules" not in f and "__pycache__" not in f
     ]))
 
+    # ── Zero-test guard: a 0-test result means the scan failed or the
+    # zombie directory tricked the agent. Flag it so the pipeline short-circuits.
+    if len(test_files) == 0 and detected_stack == "PYTHON":
+        print("CRITICAL: No test files found for a PYTHON repo — flagging DISCOVERY_FAILED.")
+        state['repo_path'] = repo_dir
+        state['detected_stack'] = detected_stack
+        state['test_files'] = []
+        state['current_step'] = "DISCOVERY_FAILED"
+        return state
+
     # Update State
     state['repo_path'] = repo_dir
     state['detected_stack'] = detected_stack
@@ -96,7 +124,7 @@ def discovery_node(state: AgentState) -> AgentState:
 
     print(f"Discovery Complete: Stack={detected_stack}, Found {len(test_files)} tests.")
     if test_files:
-        for tf in test_files[:5]:
+        for tf in test_files[:10]:
             print(f"  - {os.path.relpath(tf, repo_dir)}")
 
     return state

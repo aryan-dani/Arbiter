@@ -9,7 +9,13 @@ from backend.scoring import scoring_node
 
 MAX_RETRIES = 5
 
-# Conditional Logic
+# ── Short-circuit if clone/discovery failed ───────────────────────
+def check_discovery_status(state: AgentState):
+    if state.get('current_step') == 'DISCOVERY_FAILED':
+        return 'failed'
+    return 'ok'
+
+# ── Conditional Logic (after tester) ─────────────────────────────
 def check_test_status(state: AgentState):
     if state.get('final_status') == "PASSED":
         return "passed"
@@ -32,7 +38,16 @@ def create_workflow():
 
     # Add Edges
     workflow.set_entry_point("discovery")
-    workflow.add_edge("discovery", "tester")
+
+    # Short-circuit: if discovery failed (zombie dir / empty clone), skip straight to scoring
+    workflow.add_conditional_edges(
+        "discovery",
+        check_discovery_status,
+        {
+            "ok": "tester",
+            "failed": "scoring",
+        }
+    )
 
     # Conditional Edge from Tester
     workflow.add_conditional_edges(
