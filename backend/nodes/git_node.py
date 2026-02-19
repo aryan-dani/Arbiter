@@ -5,12 +5,9 @@ from backend.state import AgentState
 
 
 def _make_branch_name(team_name: str, leader_name: str) -> str:
-    return (
-        f"{team_name}_{leader_name}_AI_Fix"
-        .upper()
-        .replace(" ", "_")
-        .replace("-", "_")
-    )
+    team = team_name.upper().replace(" ", "_").replace("-", "_")
+    leader = leader_name.upper().replace(" ", "_").replace("-", "_")
+    return f"{team}_{leader}_AI_Fix"
 
 
 def git_node(state: AgentState) -> AgentState:
@@ -77,19 +74,70 @@ def git_node(state: AgentState) -> AgentState:
     # We use the origin URL as-is; GitHub token auth is via GITHUB_TOKEN in .env
     try:
         github_token = os.environ.get("GITHUB_TOKEN")
+        clean_remote_url = repo.remotes.origin.url  # always the clean URL before auth injection
+
         if github_token:
-            # Inject token into remote URL for HTTPS auth
-            remote_url = repo.remotes.origin.url
-            if remote_url.startswith("https://"):
-                authed_url = remote_url.replace(
-                    "https://",
-                    f"https://{github_token}@"
-                )
+            # Strip any previously injected token to avoid double-injection on retries
+            raw_url = clean_remote_url
+            if "@github.com" in raw_url:
+                # Already has a token injected — strip it out first
+                raw_url = "https://github.com" + raw_url.split("@github.com", 1)[1]
+                clean_remote_url = raw_url
+
+            if raw_url.startswith("https://"):
+                authed_url = raw_url.replace("https://", f"https://{github_token}@")
                 repo.remotes.origin.set_url(authed_url)
 
         repo.remotes.origin.push(refspec=f"{branch_name}:{branch_name}")
         print(f"Git: Pushed branch '{branch_name}' to origin.")
         state['branch_pushed'] = True
+
+        # ── Open a Pull Request via GitHub REST API ───────────────────
+        try:
+            import urllib.request
+            import json as _json
+
+            # Parse owner/repo from clean remote URL (no token)
+            # e.g. https://github.com/aryan-dani/rift-test-buggy-repo
+            clean_url = clean_remote_url.replace("https://", "").replace(".git", "")
+            parts = clean_url.strip("/").split("/")  # ['github.com', 'owner', 'repo']
+            if len(parts) >= 3:
+                owner, repo_name = parts[-2], parts[-1]
+
+                pr_body = {
+                    "title": f"[AI-AGENT] Autonomous CI/CD Fix — {branch_name}",
+                    "body": (
+                        "## AI-Agent Auto-Fix\n\n"
+                        "This pull request was created automatically by the **RIFT 2026 CI/CD Healing Agent**.\n\n"
+                        f"**Branch:** `{branch_name}`\n"
+                        f"**Fixes Applied:** {len(state.get('fixes_applied', []))}\n\n"
+                        "All changes were committed with the `[AI-AGENT]` prefix."
+                    ),
+                    "head": branch_name,
+                    "base": "main",
+                }
+
+                pr_data = _json.dumps(pr_body).encode("utf-8")
+                pr_url = f"https://api.github.com/repos/{owner}/{repo_name}/pulls"
+                req = urllib.request.Request(
+                    pr_url,
+                    data=pr_data,
+                    headers={
+                        "Authorization": f"token {github_token}",
+                        "Accept": "application/vnd.github.v3+json",
+                        "Content-Type": "application/json",
+                        "User-Agent": "RIFT2026-Agent",
+                    },
+                    method="POST",
+                )
+                with urllib.request.urlopen(req) as resp:
+                    pr_result = _json.loads(resp.read().decode())
+                    pr_html_url = pr_result.get("html_url", "")
+                    print(f"Git: PR created → {pr_html_url}")
+                    state['pr_url'] = pr_html_url
+        except Exception as pr_err:
+            print(f"Git: PR creation failed (branch was pushed OK): {pr_err}")
+
     except Exception as e:
         print(f"Git: Push failed (will continue without push): {e}")
         state['branch_pushed'] = False

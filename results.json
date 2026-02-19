@@ -172,5 +172,321 @@
         "retry_count": 5,
         "completed_at": "2026-02-19T16:51:00.001944",
         "started_at": "2026-02-19T16:50:13.546954"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo",
+        "team_name": "zoro",
+        "leader_name": "aryan",
+        "branch_name": "ZORO_ARYAN_AI_Fix",
+        "final_status": "FAILED",
+        "total_time": 69.28561496734619,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [],
+        "timeline": [
+            {
+                "timestamp": "2026-02-19T18:09:40.624321",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-19T18:09:56.215849",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-19T18:10:09.673294",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-19T18:10:24.188869",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-19T18:10:41.373679",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 5,
+        "completed_at": "2026-02-19T18:10:41.377875",
+        "started_at": "2026-02-19T18:09:32.091253"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo",
+        "team_name": "zoro",
+        "leader_name": "aryan",
+        "branch_name": "ZORO_ARYAN_AI_Fix",
+        "final_status": "PASSED",
+        "total_time": 16.74407386779785,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [
+            {
+                "path": "calc.py",
+                "bug_type": "SYNTAX",
+                "line": 4,
+                "description": "SYNTAX error in calc.py line 4 \u2192 Fix: Add colon to the end of the subtract function definition.",
+                "commit_message": "[AI-AGENT] SYNTAX fix in calc.py line 4: Add colon to the end of the subtract function definition."
+            }
+        ],
+        "timeline": [
+            {
+                "timestamp": "2026-02-19T18:17:10.423735",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-19T18:17:20.572682",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 0,
+                    "retry_count": 1
+                }
+            }
+        ],
+        "retry_count": 1,
+        "completed_at": "2026-02-19T18:17:20.574888",
+        "started_at": "2026-02-19T18:17:03.830156"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo",
+        "team_name": "paneer",
+        "leader_name": "himali",
+        "branch_name": "PANEER_HIMALI_AI_Fix",
+        "final_status": "PASSED",
+        "total_time": 16.496706008911133,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [
+            {
+                "path": "calc.py",
+                "bug_type": "SYNTAX",
+                "line": 4,
+                "description": "SYNTAX error in calc.py line 4 \u2192 Fix: Added missing colon at the end of subtract definition.",
+                "commit_message": "[AI-AGENT] SYNTAX fix in calc.py line 4: Added missing colon at the end of subtract definition."
+            }
+        ],
+        "timeline": [
+            {
+                "timestamp": "2026-02-19T18:19:05.551582",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-19T18:19:15.707967",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 0,
+                    "retry_count": 1
+                }
+            }
+        ],
+        "retry_count": 1,
+        "completed_at": "2026-02-19T18:19:15.709985",
+        "started_at": "2026-02-19T18:18:59.212770"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo",
+        "team_name": "Himali",
+        "leader_name": "aryan",
+        "branch_name": "HIMALI_ARYAN_AI_Fix",
+        "final_status": "FAILED",
+        "total_time": 46.96024799346924,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [
+            {
+                "path": "calc.py",
+                "bug_type": "SYNTAX",
+                "line": 4,
+                "description": "SYNTAX error in calc.py line 4 \u2192 Fix: Add colon to the end of the subtract function definition",
+                "commit_message": "[AI-AGENT] SYNTAX fix in calc.py line 4: Add colon to the end of the subtract function definition"
+            },
+            {
+                "path": "test_bank.py",
+                "bug_type": "LOGIC",
+                "line": 13,
+                "description": "LOGIC error in test_bank.py line 13 \u2192 Fix: No change needed in the test, fix in BankAccount",
+                "commit_message": "[AI-AGENT] LOGIC fix in test_bank.py line 13: No change needed in the test, fix in BankAccount"
+            },
+            {
+                "path": "test_bank.py",
+                "bug_type": "LOGIC",
+                "line": 13,
+                "description": "LOGIC error in test_bank.py line 13 \u2192 Fix: The original code was already correct, no action needed",
+                "commit_message": "[AI-AGENT] LOGIC fix in test_bank.py line 13: The original code was already correct, no action needed"
+            },
+            {
+                "path": "test_bank.py",
+                "bug_type": "LOGIC",
+                "line": 12,
+                "description": "LOGIC error in test_bank.py line 12 \u2192 Fix: No bug in test_bank.py, corrected test description.",
+                "commit_message": "[AI-AGENT] LOGIC fix in test_bank.py line 12: No bug in test_bank.py, corrected test description."
+            }
+        ],
+        "timeline": [
+            {
+                "timestamp": "2026-02-19T18:34:57.309954",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-19T18:35:07.534847",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-19T18:35:17.479635",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-19T18:35:27.001253",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-19T18:35:37.866396",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 5,
+        "completed_at": "2026-02-19T18:35:37.868933",
+        "started_at": "2026-02-19T18:34:50.908176"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo",
+        "team_name": "singularity",
+        "leader_name": "himali",
+        "branch_name": "SINGULARITY_HIMALI_AI_Fix",
+        "final_status": "PASSED",
+        "total_time": 42.62150311470032,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [
+            {
+                "path": "calc.py",
+                "bug_type": "SYNTAX",
+                "line": 4,
+                "description": "SYNTAX error in calc.py line 4 \u2192 Fix: Add colon to subtract function definition.",
+                "commit_message": "[AI-AGENT] SYNTAX fix in calc.py line 4: Add colon to subtract function definition."
+            },
+            {
+                "path": "bank.py",
+                "bug_type": "LOGIC",
+                "line": 8,
+                "description": "LOGIC error in bank.py line 8 \u2192 Fix: Corrected deposit method to add amount numerically.",
+                "commit_message": "[AI-AGENT] LOGIC fix in bank.py line 8: Corrected deposit method to add amount numerically."
+            },
+            {
+                "path": "bank.py",
+                "bug_type": "LOGIC",
+                "line": 12,
+                "description": "LOGIC error in bank.py line 12 \u2192 Fix: Raise ValueError if withdrawing more than balance.",
+                "commit_message": "[AI-AGENT] LOGIC fix in bank.py line 12: Raise ValueError if withdrawing more than balance."
+            },
+            {
+                "path": "validator.py",
+                "bug_type": "IMPORT",
+                "line": 1,
+                "description": "IMPORT error in validator.py line 1 \u2192 Fix: Add colon and fix indentation in validate_amount function.",
+                "commit_message": "[AI-AGENT] IMPORT fix in validator.py line 1: Add colon and fix indentation in validate_amount function."
+            }
+        ],
+        "timeline": [
+            {
+                "timestamp": "2026-02-19T18:45:30.526535",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-19T18:45:39.411863",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-19T18:45:49.355989",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-19T18:45:59.243242",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-19T18:46:07.923643",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 0,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 4,
+        "completed_at": "2026-02-19T18:46:07.925219",
+        "started_at": "2026-02-19T18:45:25.303716"
     }
 ]

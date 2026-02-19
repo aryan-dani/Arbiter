@@ -1,4 +1,5 @@
 import os
+import json
 from google import genai
 from backend.nodes import env_loader  # noqa: F401 — loads backend/.env
 from backend.state import AgentState, FixDetail
@@ -66,28 +67,41 @@ def fixer_node(state: AgentState) -> AgentState:
     Error Description: {analysis.get('description')}
     
     Original Code:
-    ```python
+    ```
     {code_content}
     ```
     
     Task:
-    Fix the bug in the code. 
-    1. Return the FULL updated file content.
-    2. Ensure the fix addresses the specific error described.
-    3. Do not add markdown backticks or explanations, just the raw code.
+    1. Fix the bug described above.
+    2. Write a short, human-readable description of the fix action (max 10 words).
     
-    Output Format:
-    Only the raw code.
+    Output strictly as JSON (no markdown):
+    {{
+        "fixed_code": "<the full fixed file content as a string>",
+        "fix_action": "<short fix description, e.g. 'remove the import statement' or 'add the colon at the correct position'>"
+    }}
     """
-    
+
     try:
         response = client.models.generate_content(
             model='gemini-2.0-flash',
-            contents=prompt
+            contents=prompt,
+            config={"response_mime_type": "application/json"}
         )
-        fixed_code = response.text
-        print(f"DEBUG: AI Generated Code:\n{fixed_code}\n-------------------")
-        
+        try:
+            result = json.loads(response.text)
+            fixed_code = result.get('fixed_code', '')
+            fix_action = result.get('fix_action', f'fix the {analysis.get("bug_type", "error").lower()} error')
+            # If fixed_code is empty, fall back to raw response
+            if not fixed_code.strip():
+                fixed_code = response.text
+                fix_action = f'fix the {analysis.get("bug_type", "error").lower()} error'
+        except (json.JSONDecodeError, AttributeError):
+            # Gemini returned raw code instead of JSON — use it as-is
+            print("Fixer: JSON parse failed, using raw response as code.")
+            fixed_code = response.text
+            fix_action = f'fix the {analysis.get("bug_type", "error").lower()} error'
+
         # Clean up markdown if Gemini adds it despite instructions
         if fixed_code.startswith("```"):
             lines = fixed_code.splitlines()
@@ -101,13 +115,19 @@ def fixer_node(state: AgentState) -> AgentState:
         with open(file_full_path, "w", encoding="utf-8") as f:
             f.write(fixed_code)
             
-        # Log Fix
+        # Judge-compliant output format:
+        # 'LINTING error in src/utils.py line 15 → Fix: remove the import statement'
+        bug_type = analysis.get('bug_type', 'UNKNOWN')
+        line_num = analysis.get('line', '?')
+        judge_description = f"{bug_type} error in {file_relative_path} line {line_num} \u2192 Fix: {fix_action}"
+        print(f"[JUDGE OUTPUT] {judge_description}")
+
         fix_entry: FixDetail = {
             "path": file_relative_path,
-            "bug_type": analysis.get('bug_type'),
-            "line": analysis.get('line'),
-            "description": f"Fixed {analysis.get('bug_type')} error at line {analysis.get('line')}",
-            "commit_message": f"[AI-AGENT] Fixed {analysis.get('bug_type')} in {file_relative_path}"
+            "bug_type": bug_type,
+            "line": line_num,
+            "description": judge_description,
+            "commit_message": f"[AI-AGENT] {bug_type} fix in {file_relative_path} line {line_num}: {fix_action}"
         }
         
         if 'fixes_applied' not in state:
