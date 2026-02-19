@@ -49,16 +49,20 @@ def discovery_node(state: AgentState) -> AgentState:
                     # Windows: use rmdir /s /q
                     subprocess.run(["rmdir", "/s", "/q", repo_dir], shell=True, check=False)
                 else:
-                    # Linux/Docker: use rm -rf (handles root-owned files better)
-                    subprocess.run(["rm", "-rf", repo_dir], check=False)
+                    # Linux/Docker: use sudo rm -rf to handle root-owned files from Docker
+                    # Note: The backend user (ubuntu) must have passwordless sudo for this to work.
+                    print(f"Discovery: Attempting sudo rm -rf {repo_dir}...")
+                    subprocess.run(["sudo", "rm", "-rf", repo_dir], check=False)
                 
                 print(f"Discovery: subprocess cleanup attempted.")
             except Exception as rm_err:
                 print(f"Discovery: WARNING - Subprocess cleanup failed: {rm_err}")
     
-    # Verify cleanup
+    # Verify cleanup (Final check)
     if os.path.exists(repo_dir):
         print(f"CRITICAL: Failed to clean {repo_dir}. Cloning might fail or use stale files.")
+        # Attempt one last absolute force kill?
+        # No, if sudo rm -rf failed, we are likely blocked.
     else:
         print(f"Discovery: Cleanup successful.")
 
