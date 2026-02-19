@@ -923,5 +923,738 @@
         "retry_count": 5,
         "completed_at": "2026-02-19T19:50:49.302718",
         "started_at": "2026-02-19T19:49:59.902689"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo",
+        "team_name": "singularity",
+        "leader_name": "himali",
+        "branch_name": "SINGULARITY_HIMALI_AI_Fix",
+        "final_status": "FAILED",
+        "total_time": 45.14144015312195,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [
+            {
+                "path": "main.py",
+                "bug_type": "IMPORT",
+                "line": 1,
+                "description": "IMPORT error in main.py line 1 \u2192 Fix: Add import sys to potentially resolve import issues.",
+                "commit_message": "[AI-AGENT] IMPORT fix in main.py line 1: Add import sys to potentially resolve import issues."
+            },
+            {
+                "path": "main.py",
+                "bug_type": "IMPORT",
+                "line": 1,
+                "description": "IMPORT error in main.py line 1 \u2192 Fix: fix the import error",
+                "commit_message": "[AI-AGENT] IMPORT fix in main.py line 1: fix the import error"
+            },
+            {
+                "path": "main.py",
+                "bug_type": "IMPORT",
+                "line": 1,
+                "description": "IMPORT error in main.py line 1 \u2192 Fix: fix the import error",
+                "commit_message": "[AI-AGENT] IMPORT fix in main.py line 1: fix the import error"
+            }
+        ],
+        "timeline": [
+            {
+                "timestamp": "2026-02-19T21:38:56.887353",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 5,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-19T21:39:03.474299",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 5,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-19T21:39:16.694725",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 5,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-19T21:39:27.148220",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 5,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-19T21:39:36.645232",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 5,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 5,
+        "completed_at": "2026-02-19T21:39:36.690014",
+        "started_at": "2026-02-19T21:38:51.548065"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo",
+        "team_name": "singularity",
+        "leader_name": "himali",
+        "branch_name": "SINGULARITY_HIMALI_AI_Fix",
+        "final_status": "FAILED",
+        "total_time": 41.48038697242737,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [
+            {
+                "path": "main.py",
+                "bug_type": "IMPORT",
+                "line": 1,
+                "description": "IMPORT error in main.py line 1 \u2192 Fix: Corrected import statement from 'aggregator' to 'weather_aggregator'.",
+                "commit_message": "[AI-AGENT] IMPORT fix in main.py line 1: Corrected import statement from 'aggregator' to 'weather_aggregator'."
+            }
+        ],
+        "timeline": [
+            {
+                "timestamp": "2026-02-19T21:44:39.416395",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 5,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-19T21:44:47.932424",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 5,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-19T21:44:56.494434",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 5,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-19T21:45:05.233901",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 5,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-19T21:45:16.694407",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 5,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 5,
+        "completed_at": "2026-02-19T21:45:16.697274",
+        "started_at": "2026-02-19T21:44:35.216274"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo",
+        "team_name": "singularity",
+        "leader_name": "himali",
+        "branch_name": "SINGULARITY_HIMALI_AI_Fix",
+        "final_status": "FAILED",
+        "total_time": 39.472201108932495,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [
+            {
+                "path": "requirements.txt",
+                "bug_type": "IMPORT",
+                "line": 1,
+                "description": "IMPORT error in requirements.txt line 1 \u2192 Fix: Added pytest to the requirements.txt file.",
+                "commit_message": "[AI-AGENT] IMPORT fix in requirements.txt line 1: Added pytest to the requirements.txt file."
+            },
+            {
+                "path": "requirements.txt",
+                "bug_type": "IMPORT",
+                "line": 1,
+                "description": "IMPORT error in requirements.txt line 1 \u2192 Fix: No change needed, file already contains the required package",
+                "commit_message": "[AI-AGENT] IMPORT fix in requirements.txt line 1: No change needed, file already contains the required package"
+            },
+            {
+                "path": "requirements.txt",
+                "bug_type": "IMPORT",
+                "line": 1,
+                "description": "IMPORT error in requirements.txt line 1 \u2192 Fix: No change needed. The package is already present.",
+                "commit_message": "[AI-AGENT] IMPORT fix in requirements.txt line 1: No change needed. The package is already present."
+            },
+            {
+                "path": "requirements.txt",
+                "bug_type": "IMPORT",
+                "line": 1,
+                "description": "IMPORT error in requirements.txt line 1 \u2192 Fix: No change needed. The file already contains 'pytest'.",
+                "commit_message": "[AI-AGENT] IMPORT fix in requirements.txt line 1: No change needed. The file already contains 'pytest'."
+            }
+        ],
+        "timeline": [
+            {
+                "timestamp": "2026-02-19T21:48:57.082449",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 5,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-19T21:49:05.695774",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 5,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-19T21:49:15.622139",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 5,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-19T21:49:23.492809",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 5,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-19T21:49:31.187540",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 5,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 5,
+        "completed_at": "2026-02-19T21:49:31.189109",
+        "started_at": "2026-02-19T21:48:51.716908"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo",
+        "team_name": "singh",
+        "leader_name": "king",
+        "branch_name": "SINGH_KING_AI_Fix",
+        "final_status": "FAILED",
+        "total_time": 45.61779808998108,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [
+            {
+                "path": "requirements.txt",
+                "bug_type": "IMPORT",
+                "line": 0,
+                "description": "IMPORT error in requirements.txt line 0 \u2192 Fix: Add 'src' to requirements.txt dependencies",
+                "commit_message": "[AI-AGENT] IMPORT fix in requirements.txt line 0: Add 'src' to requirements.txt dependencies"
+            },
+            {
+                "path": "requirements.txt",
+                "bug_type": "IMPORT",
+                "line": 0,
+                "description": "IMPORT error in requirements.txt line 0 \u2192 Fix: Added 'src' to dependencies in requirements.txt (already present)",
+                "commit_message": "[AI-AGENT] IMPORT fix in requirements.txt line 0: Added 'src' to dependencies in requirements.txt (already present)"
+            },
+            {
+                "path": "requirements.txt",
+                "bug_type": "IMPORT",
+                "line": 0,
+                "description": "IMPORT error in requirements.txt line 0 \u2192 Fix: Added 'src' to dependencies in requirements.txt.",
+                "commit_message": "[AI-AGENT] IMPORT fix in requirements.txt line 0: Added 'src' to dependencies in requirements.txt."
+            },
+            {
+                "path": "requirements.txt",
+                "bug_type": "IMPORT",
+                "line": "?",
+                "description": "IMPORT error in requirements.txt line ? \u2192 Fix: Added 'src' to dependencies.",
+                "commit_message": "[AI-AGENT] IMPORT fix in requirements.txt line ?: Added 'src' to dependencies."
+            }
+        ],
+        "timeline": [
+            {
+                "timestamp": "2026-02-19T22:04:14.845090",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-19T22:04:25.773149",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-19T22:04:36.182545",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-19T22:04:46.068291",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-19T22:04:55.634777",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 5,
+        "completed_at": "2026-02-19T22:04:55.636984",
+        "started_at": "2026-02-19T22:04:10.018683"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo",
+        "team_name": "k",
+        "leader_name": "y",
+        "branch_name": "K_Y_AI_Fix",
+        "final_status": "FAILED",
+        "total_time": 44.42635798454285,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [
+            {
+                "path": "tests/test_math_ops.py",
+                "bug_type": "IMPORT",
+                "line": 2,
+                "description": "IMPORT error in tests/test_math_ops.py line 2 \u2192 Fix: Fix import path to import directly from math_ops",
+                "commit_message": "[AI-AGENT] IMPORT fix in tests/test_math_ops.py line 2: Fix import path to import directly from math_ops"
+            },
+            {
+                "path": "src/math_ops.py",
+                "bug_type": "IMPORT",
+                "line": 1,
+                "description": "IMPORT error in src/math_ops.py line 1 \u2192 Fix: Fixed the add function to perform addition instead of subtraction.",
+                "commit_message": "[AI-AGENT] IMPORT fix in src/math_ops.py line 1: Fixed the add function to perform addition instead of subtraction."
+            },
+            {
+                "path": "src/math_ops.py",
+                "bug_type": "IMPORT",
+                "line": 1,
+                "description": "IMPORT error in src/math_ops.py line 1 \u2192 Fix: No import statement to fix in this file.",
+                "commit_message": "[AI-AGENT] IMPORT fix in src/math_ops.py line 1: No import statement to fix in this file."
+            }
+        ],
+        "timeline": [
+            {
+                "timestamp": "2026-02-19T22:12:27.303102",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-19T22:12:37.254929",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-19T22:12:47.320956",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-19T22:12:56.712732",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-19T22:13:06.235928",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 5,
+        "completed_at": "2026-02-19T22:13:06.237478",
+        "started_at": "2026-02-19T22:12:21.810587"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo",
+        "team_name": "sar",
+        "leader_name": "phira",
+        "branch_name": "SAR_PHIRA_AI_Fix",
+        "final_status": "PASSED",
+        "total_time": 42.01766490936279,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [
+            {
+                "path": "src/validator.py",
+                "bug_type": "SYNTAX",
+                "line": 2,
+                "description": "SYNTAX error in src/validator.py line 2 \u2192 Fix: Add the colon to the if statement in validate_input.",
+                "commit_message": "[AI-AGENT] SYNTAX fix in src/validator.py line 2: Add the colon to the if statement in validate_input."
+            },
+            {
+                "path": "src/math_ops.py",
+                "bug_type": "LOGIC",
+                "line": 2,
+                "description": "LOGIC error in src/math_ops.py line 2 \u2192 Fix: Fix addition implementation to return the sum of a and b",
+                "commit_message": "[AI-AGENT] LOGIC fix in src/math_ops.py line 2: Fix addition implementation to return the sum of a and b"
+            },
+            {
+                "path": "src/validator.py",
+                "bug_type": "LOGIC",
+                "line": 0,
+                "description": "LOGIC error in src/validator.py line 0 \u2192 Fix: Raise SyntaxError if input is not a string.",
+                "commit_message": "[AI-AGENT] LOGIC fix in src/validator.py line 0: Raise SyntaxError if input is not a string."
+            }
+        ],
+        "timeline": [
+            {
+                "timestamp": "2026-02-19T22:17:51.394983",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-19T22:18:04.298024",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-19T22:18:15.840528",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-19T22:18:27.631245",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 0,
+                    "retry_count": 3
+                }
+            }
+        ],
+        "retry_count": 3,
+        "completed_at": "2026-02-19T22:18:27.632521",
+        "started_at": "2026-02-19T22:17:45.614202"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo",
+        "team_name": "aar",
+        "leader_name": "paar",
+        "branch_name": "AAR_PAAR_AI_Fix",
+        "final_status": "FAILED",
+        "total_time": 26.569536924362183,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [
+            {
+                "path": "aggregator.py",
+                "bug_type": "IMPORT",
+                "line": 14,
+                "description": "IMPORT error in aggregator.py line 14 \u2192 Fix: No fix needed. The code already imports requests.",
+                "commit_message": "[AI-AGENT] IMPORT fix in aggregator.py line 14: No fix needed. The code already imports requests."
+            },
+            {
+                "path": "aggregator.py",
+                "bug_type": "IMPORT",
+                "line": 14,
+                "description": "IMPORT error in aggregator.py line 14 \u2192 Fix: No action needed, the import statement already exists.",
+                "commit_message": "[AI-AGENT] IMPORT fix in aggregator.py line 14: No action needed, the import statement already exists."
+            },
+            {
+                "path": "requirements.txt",
+                "bug_type": "IMPORT",
+                "line": 1,
+                "description": "IMPORT error in requirements.txt line 1 \u2192 Fix: Added 'requests' to the requirements.txt file.",
+                "commit_message": "[AI-AGENT] IMPORT fix in requirements.txt line 1: Added 'requests' to the requirements.txt file."
+            },
+            {
+                "path": "requirements.txt",
+                "bug_type": "IMPORT",
+                "line": 2,
+                "description": "IMPORT error in requirements.txt line 2 \u2192 Fix: No change needed as requests is already added.",
+                "commit_message": "[AI-AGENT] IMPORT fix in requirements.txt line 2: No change needed as requests is already added."
+            }
+        ],
+        "timeline": [
+            {
+                "timestamp": "2026-02-19T22:29:38.211526",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-19T22:29:45.736981",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-19T22:29:52.361555",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-19T22:29:58.127493",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-19T22:30:03.811165",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 5,
+        "completed_at": "2026-02-19T22:30:03.812705",
+        "started_at": "2026-02-19T22:29:37.242656"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo",
+        "team_name": "aaha",
+        "leader_name": "lessee",
+        "branch_name": "AAHA_LESSEE_AI_Fix",
+        "final_status": "FAILED",
+        "total_time": 63.22145199775696,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [
+            {
+                "path": "src/validator.py",
+                "bug_type": "SYNTAX",
+                "line": 2,
+                "description": "SYNTAX error in src/validator.py line 2 \u2192 Fix: Add colon at the end of the if statement",
+                "commit_message": "[AI-AGENT] SYNTAX fix in src/validator.py line 2: Add colon at the end of the if statement"
+            },
+            {
+                "path": "requirements.txt",
+                "bug_type": "IMPORT",
+                "line": 1,
+                "description": "IMPORT error in requirements.txt line 1 \u2192 Fix: Added 'requests' to requirements.txt.",
+                "commit_message": "[AI-AGENT] IMPORT fix in requirements.txt line 1: Added 'requests' to requirements.txt."
+            },
+            {
+                "path": "requirements.txt",
+                "bug_type": "IMPORT",
+                "line": 2,
+                "description": "IMPORT error in requirements.txt line 2 \u2192 Fix: No change needed. 'requests' is already listed.",
+                "commit_message": "[AI-AGENT] IMPORT fix in requirements.txt line 2: No change needed. 'requests' is already listed."
+            },
+            {
+                "path": "aggregator.py",
+                "bug_type": "IMPORT",
+                "line": 14,
+                "description": "IMPORT error in aggregator.py line 14 \u2192 Fix: No code changes needed. The import statement exists.",
+                "commit_message": "[AI-AGENT] IMPORT fix in aggregator.py line 14: No code changes needed. The import statement exists."
+            }
+        ],
+        "timeline": [
+            {
+                "timestamp": "2026-02-19T22:33:40.672797",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-19T22:33:55.333596",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-19T22:34:08.574954",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-19T22:34:22.510140",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-19T22:34:36.600353",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 5,
+        "completed_at": "2026-02-19T22:34:36.602712",
+        "started_at": "2026-02-19T22:33:33.380686"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo",
+        "team_name": "aaloo",
+        "leader_name": "paneer",
+        "branch_name": "AALOO_PANEER_AI_Fix",
+        "final_status": "PASSED",
+        "total_time": 52.90994596481323,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [
+            {
+                "path": "src/utils.py",
+                "bug_type": "LINTING",
+                "line": 1,
+                "description": "LINTING error in src/utils.py line 1 \u2192 Fix: Remove unused import 'os'",
+                "commit_message": "[AI-AGENT] LINTING fix in src/utils.py line 1: Remove unused import 'os'"
+            },
+            {
+                "path": "src/validator.py",
+                "bug_type": "SYNTAX",
+                "line": 2,
+                "description": "SYNTAX error in src/validator.py line 2 \u2192 Fix: Add colon after the if statement condition.",
+                "commit_message": "[AI-AGENT] SYNTAX fix in src/validator.py line 2: Add colon after the if statement condition."
+            },
+            {
+                "path": "src/math_ops.py",
+                "bug_type": "LOGIC",
+                "line": 2,
+                "description": "LOGIC error in src/math_ops.py line 2 \u2192 Fix: Corrected subtraction to addition in the add function.",
+                "commit_message": "[AI-AGENT] LOGIC fix in src/math_ops.py line 2: Corrected subtraction to addition in the add function."
+            },
+            {
+                "path": "src/validator.py",
+                "bug_type": "SYNTAX",
+                "line": 2,
+                "description": "SYNTAX error in src/validator.py line 2 \u2192 Fix: Raise SyntaxError for negative input instead of returning False",
+                "commit_message": "[AI-AGENT] SYNTAX fix in src/validator.py line 2: Raise SyntaxError for negative input instead of returning False"
+            }
+        ],
+        "timeline": [
+            {
+                "timestamp": "2026-02-19T22:39:31.345975",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-19T22:39:44.334166",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-19T22:39:55.465709",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-19T22:40:05.823160",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-19T22:40:16.825531",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 0,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 4,
+        "completed_at": "2026-02-19T22:40:16.827548",
+        "started_at": "2026-02-19T22:39:23.917099"
     }
 ]

@@ -58,14 +58,28 @@ def git_node(state: AgentState) -> AgentState:
         print(f"Git: Branch checkout failed: {e}")
         return state
 
-    # Stage ALL modified/untracked changes
     try:
         repo.git.add(A=True)   # --all: stages new, modified, and deleted files
-        if repo.is_dirty(untracked_files=True):
+        
+        # Explicitly unstage binary/cache files to meet RIFT compliance
+        try:
+            repo.git.reset('--', '**/__pycache__/*', '**/.pytest_cache/*')
+        except:
+            # If no such files exist, reset might throw an error or just do nothing. 
+            # Safe to ignore if it fails.
+            pass
+        
+        # Check if there are actually changes to commit
+        if repo.is_dirty(untracked_files=True) or repo.index.diff("HEAD"):
             repo.index.commit(commit_msg, author=author, committer=committer)
             print(f"Git: Committed — '{commit_msg}'")
         else:
-            print("Git: No changes to commit.")
+            print("Git: No changes to commit (skipping).")
+            # If no changes, we might want to return early to avoid pushing? 
+            # But the logic currently continues. Let's let it check for push in case local/remote are out of sync,
+            # but usually this means we shouldn't push. 
+            # Ideally we return here if we didn't commit anything new AND we haven't committed anything in this run?
+            # For simplicity, just don't commit.
     except Exception as e:
         print(f"Git: Commit failed: {e}")
         return state
@@ -104,6 +118,10 @@ def git_node(state: AgentState) -> AgentState:
                 if len(parts) >= 3:
                     owner, repo_name = parts[-2], parts[-1]
 
+                    # CHECK FOR EXISTING PR FIRST to avoid 422
+                    # There isn't an easy way to check without listing all PRs, which might be overkill.
+                    # Instead, we will handle the 422 specific error in the exception block below.
+
                     pr_body = {
                         "title": f"[AI-AGENT] Autonomous CI/CD Fix — {branch_name}",
                         "body": (
@@ -135,8 +153,14 @@ def git_node(state: AgentState) -> AgentState:
                         pr_html_url = pr_result.get("html_url", "")
                         print(f"Git: PR created → {pr_html_url}")
                         state['pr_url'] = pr_html_url
+            except urllib.error.HTTPError as http_err:
+                if http_err.code == 422:
+                     print(f"Git: PR creation skipped (422 Unprocessable Entity) - likely already exists.")
+                     # Ideally we'd fetch the existing PR URL here but for now just suppressing the error is enough
+                else:
+                     print(f"Git: PR creation failed: {http_err}")
             except Exception as pr_err:
-                print(f"Git: PR creation failed (branch was pushed OK): {pr_err}")
+                print(f"Git: PR creation failed: {pr_err}")
         elif state.get('pr_url'):
             print(f"Git: PR already open at {state['pr_url']} — skipping duplicate creation.")
 

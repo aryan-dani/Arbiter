@@ -75,6 +75,11 @@ def fixer_node(state: AgentState) -> AgentState:
     1. Fix the bug described above.
     2. Write a short, human-readable description of the fix action (max 10 words).
     
+    SPECIAL RULES:
+    - If File is 'requirements.txt': Append the missing library. Do NOT remove existing libraries.
+    - If File is 'package.json': Add the dependency to the "dependencies" section.
+    - Output the FULL file content in "fixed_code", not just the diff.
+    
     Output strictly as JSON (no markdown):
     {{
         "fixed_code": "<the full fixed file content as a string>",
@@ -82,34 +87,73 @@ def fixer_node(state: AgentState) -> AgentState:
     }}
     """
 
-    try:
-        response = client.models.generate_content(
-            model='gemini-2.0-flash',
-            contents=prompt,
-            config={"response_mime_type": "application/json"}
-        )
+    import time
+    
+    # Retry logic for 429 RESOURCE_EXHAUSTED
+    max_retries = 5
+    retry_delay = 10  # Start with 10 seconds as requested
+    
+    for attempt in range(max_retries + 1):
         try:
-            result = json.loads(response.text)
-            fixed_code = result.get('fixed_code', '')
-            fix_action = result.get('fix_action', f'fix the {analysis.get("bug_type", "error").lower()} error')
-            # If fixed_code is empty, fall back to raw response
-            if not fixed_code.strip():
-                fixed_code = response.text
-                fix_action = f'fix the {analysis.get("bug_type", "error").lower()} error'
-        except (json.JSONDecodeError, AttributeError):
-            # Gemini returned raw code instead of JSON — use it as-is
-            print("Fixer: JSON parse failed, using raw response as code.")
-            fixed_code = response.text
-            fix_action = f'fix the {analysis.get("bug_type", "error").lower()} error'
-
-        # Clean up markdown if Gemini adds it despite instructions
-        if fixed_code.startswith("```"):
-            lines = fixed_code.splitlines()
+            response = client.models.generate_content(
+                model='gemini-2.0-flash',
+                contents=prompt,
+                config={"response_mime_type": "application/json"}
+            )
+            break # Success
+        except Exception as e:
+            err_str = str(e)
+            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
+                if attempt < max_retries:
+                    print(f"Fixer: 429 RESOURCE_EXHAUSTED. Retrying in {retry_delay}s... (Attempt {attempt+1}/{max_retries})")
+                    time.sleep(retry_delay)
+                    retry_delay *= 2  # Exponential backoff
+                    continue
+                else:
+                    print("Fixer: Max retries exceeded for API limit.")
+                    return state
+            else:
+                # Not a rate limit error, raise or handle
+                print(f"Fixer: API Error: {e}")
+                return state
+        
+    try:
+        raw_text = response.text
+        # robust cleanup of markdown fences
+        cleaned_text = raw_text.strip()
+        if cleaned_text.startswith("```"):
+            lines = cleaned_text.splitlines()
             if lines[0].startswith("```"):
                 lines = lines[1:]
             if lines[-1].startswith("```"):
                 lines = lines[:-1]
-            fixed_code = "\n".join(lines)
+            cleaned_text = "\n".join(lines).strip()
+
+        try:
+            result = json.loads(cleaned_text)
+            fixed_code = result.get('fixed_code', '')
+            fix_action = result.get('fix_action', f'fix the {analysis.get("bug_type", "error").lower()} error')
+            
+            # If fixed_code is empty, stick with empty string or handle error
+            if not fixed_code.strip():
+                 # fallback if JSON is valid but code is empty - likely an error in generation
+                 print("Fixer: Generated JSON has empty fixed_code.")
+        except json.JSONDecodeError:
+            # If it fails to parse as JSON, check if it looks like code or JSON
+            # heuristic: if it starts with '{' and ends with '}', it's probably broken JSON. 
+            # If it's code, it likely won't.
+            if cleaned_text.strip().startswith("{") and cleaned_text.strip().endswith("}"):
+                print("Fixer: Failed to parse JSON response. Raw response was likely malformed JSON.")
+                # We could try to salvage, but for now let's just log and maybe return state
+                # to avoid writing garbage.
+                print(f"DEBUG Raw: {cleaned_text[:100]}...")
+                return state
+            else:
+                # Assume it's raw code if it doesn't look like JSON
+                print("Fixer: JSON parse failed, assuming raw code response.")
+                fixed_code = cleaned_text
+                fix_action = f'fix the {analysis.get("bug_type", "error").lower()} error'
+
             
         # Apply Fix
         with open(file_full_path, "w", encoding="utf-8") as f:
