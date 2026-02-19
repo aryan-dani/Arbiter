@@ -70,6 +70,8 @@ async def run_healing_workflow(request: HealingRequest):
         team_name=request.team_name,
         leader_name=request.leader_name,
         repo_path="",
+        upstream_url=request.repo_url,  # Initially same as repo_url, discovery will update if forking
+        fork_url="",                    # Will be populated by discovery_node
         start_time=start_time.timestamp(),
         current_step="START",
         retry_count=0,

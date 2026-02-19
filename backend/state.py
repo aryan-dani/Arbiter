@@ -22,6 +22,10 @@ class AgentState(TypedDict):
     leader_name: str
     repo_path: str
     start_time: float # Timestamp
+    
+    # Forking Support
+    upstream_url: str  # The original repo (read-only for agent)
+    fork_url: str      # The fork (read/write for agent)
 
     
     # Execution State

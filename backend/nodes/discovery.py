@@ -64,9 +64,41 @@ def discovery_node(state: AgentState) -> AgentState:
 
     os.makedirs(WORK_DIR, exist_ok=True)
 
+    # ── Forking Logic ────────────────────────────────────────────────────────
+    # If we have a GITHUB_TOKEN, we try to fork the repo to the user's account
+    # and clone from there. If not, we clone directly (read-only or public).
+    
+    github_token = os.environ.get("GITHUB_TOKEN")
+    upstream_url = state['repo_url']
+    fork_url = ""
+    
+    if github_token:
+        print(f"Discovery: Found GITHUB_TOKEN. Attempting to ensure fork exists...")
+        try:
+            fork_url = _ensure_fork(upstream_url, github_token)
+            if fork_url:
+                print(f"Discovery: Fork ready at {fork_url}")
+                state['fork_url'] = fork_url
+                state['upstream_url'] = upstream_url
+                # Clone from the FORK, not the upstream
+                clone_url = fork_url.replace("https://", f"https://{github_token}@")
+            else:
+                print("Discovery: Fork creation returned empty URL. Falling back to direct clone.")
+                clone_url = upstream_url
+        except Exception as e:
+            print(f"Discovery: Forking failed ({e}). Falling back to direct clone.")
+            clone_url = upstream_url
+    else:
+        print("Discovery: No GITHUB_TOKEN found. Cloning upstream directly (read-only?).")
+        clone_url = upstream_url
+
     try:
-        print(f"  Cloning {repo_url} -> {repo_dir}")
-        Repo.clone_from(repo_url, repo_dir)
+        # If we have a token but forking failed/skipped, inject token into upstream URL if needed?
+        # Only if we plan to push to upstream directly (which we shouldn't if we don't own it).
+        # For now, let's assume if no fork, we clone read-only or however the URL is provided.
+        
+        print(f"  Cloning {clone_url} -> {repo_dir}")
+        Repo.clone_from(clone_url, repo_dir)
     except Exception as e:
         print(f"CRITICAL: Clone failed: {e}")
         state['repo_path'] = repo_dir
@@ -159,3 +191,68 @@ def _find_file(base_dir: str, filename: str) -> bool:
         if filename in files:
             return True
     return False
+
+
+def _ensure_fork(upstream_url: str, token: str) -> str | None:
+    """
+    Ensures a fork of the upstream repo exists on the authenticated user's account.
+    Returns the URL of the fork (e.g. https://github.com/my-user/repo.git).
+    """
+    import requests
+    import time
+
+    headers = {
+        "Authorization": f"token {token}",
+        "Accept": "application/vnd.github.v3+json"
+    }
+
+    # 1. Parse upstream owner/repo
+    # Expected format: https://github.com/owner/repo or https://github.com/owner/repo.git
+    clean = upstream_url.replace(".git", "").replace("https://github.com/", "").strip("/")
+    parts = clean.split("/")
+    if len(parts) < 2:
+        print(f"Discovery: Could not parse owner/repo from {upstream_url}")
+        return None
+    
+    upstream_owner, repo_name = parts[-2], parts[-1]
+
+    # 2. Get authenticated user
+    resp = requests.get("https://api.github.com/user", headers=headers)
+    if resp.status_code != 200:
+        print(f"Discovery: Failed to get auth user: {resp.text}")
+        return None
+    user_login = resp.json()["login"]
+
+    # 3. Check if fork already exists
+    fork_url = f"https://github.com/{user_login}/{repo_name}.git"
+    
+    # Check if we can access the fork (it might already exist)
+    # We verify by checking API for this repo
+    check_url = f"https://api.github.com/repos/{user_login}/{repo_name}"
+    resp = requests.get(check_url, headers=headers)
+    
+    if resp.status_code == 200:
+        print(f"Discovery: Fork already exists at {fork_url}")
+        return fork_url
+
+    # 4. Create Fork
+    print(f"Discovery: Creating fork of {upstream_owner}/{repo_name}...")
+    create_fork_url = f"https://api.github.com/repos/{upstream_owner}/{repo_name}/forks"
+    resp = requests.post(create_fork_url, headers=headers)
+    
+    if resp.status_code not in [200, 202]:
+        print(f"Discovery: Failed to create fork: {resp.text}")
+        return None
+    
+    # 5. Wait for fork to be ready
+    # GitHub returns 202 Accepted, but the repo might not be available immediately for cloning
+    print("Discovery: Fork initiated. Waiting for readiness...")
+    for i in range(10):
+        time.sleep(2)
+        resp = requests.get(check_url, headers=headers)
+        if resp.status_code == 200:
+            print(f"Discovery: Fork ready after {i*2}s.")
+            return fork_url
+    
+    print("Discovery: Timed out waiting for fork to be ready.")
+    return None
