@@ -1656,5 +1656,544 @@
         "retry_count": 4,
         "completed_at": "2026-02-19T22:40:16.827548",
         "started_at": "2026-02-19T22:39:23.917099"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo/",
+        "team_name": "h",
+        "leader_name": "a",
+        "branch_name": "H_A_AI_Fix",
+        "final_status": "FAILED",
+        "total_time": 86.6903121471405,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [
+            {
+                "path": "src/validator.py",
+                "bug_type": "SYNTAX",
+                "line": 2,
+                "description": "SYNTAX error in src/validator.py line 2 \u2192 Fix: Add colon at the end of the if statement.",
+                "commit_message": "[AI-AGENT] SYNTAX fix in src/validator.py line 2: Add colon at the end of the if statement."
+            },
+            {
+                "path": "src/math_ops.py",
+                "bug_type": "LOGIC",
+                "line": 2,
+                "description": "LOGIC error in src/math_ops.py line 2 \u2192 Fix: Corrected the add function to return the sum.",
+                "commit_message": "[AI-AGENT] LOGIC fix in src/math_ops.py line 2: Corrected the add function to return the sum."
+            },
+            {
+                "path": "src/validator.py",
+                "bug_type": "LOGIC",
+                "line": 3,
+                "description": "LOGIC error in src/validator.py line 3 \u2192 Fix: Raise ValueError when value is less than zero.",
+                "commit_message": "[AI-AGENT] LOGIC fix in src/validator.py line 3: Raise ValueError when value is less than zero."
+            },
+            {
+                "path": "src/validator.py",
+                "bug_type": "LOGIC",
+                "line": 3,
+                "description": "LOGIC error in src/validator.py line 3 \u2192 Fix: Added informative message to ValueError exception.",
+                "commit_message": "[AI-AGENT] LOGIC fix in src/validator.py line 3: Added informative message to ValueError exception."
+            }
+        ],
+        "timeline": [
+            {
+                "timestamp": "2026-02-20T00:32:24.482062",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:32:52.027260",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:33:05.458179",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:33:18.653001",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:33:32.417818",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 5,
+        "completed_at": "2026-02-20T00:33:32.420066",
+        "started_at": "2026-02-20T00:32:05.729754"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo/",
+        "team_name": "h",
+        "leader_name": "mglat",
+        "branch_name": "H_MGLAT_AI_Fix",
+        "final_status": "PENDING",
+        "total_time": 0.10294103622436523,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [],
+        "timeline": [],
+        "retry_count": 0,
+        "completed_at": "2026-02-20T00:38:34.454909",
+        "started_at": "2026-02-20T00:38:34.351391"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo/",
+        "team_name": "hai",
+        "leader_name": "hun",
+        "branch_name": "HAI_HUN_AI_Fix",
+        "final_status": "FAILED",
+        "total_time": 50.236163854599,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [
+            {
+                "path": "src/utils.py",
+                "bug_type": "LINTING",
+                "line": 1,
+                "description": "LINTING error in src/utils.py line 1 \u2192 Fix: Remove unused import 'os' from the file.",
+                "commit_message": "[AI-AGENT] LINTING fix in src/utils.py line 1: Remove unused import 'os' from the file."
+            },
+            {
+                "path": "src/validator.py",
+                "bug_type": "SYNTAX",
+                "line": 2,
+                "description": "SYNTAX error in src/validator.py line 2 \u2192 Fix: Add the colon to the if statement to fix the syntax error",
+                "commit_message": "[AI-AGENT] SYNTAX fix in src/validator.py line 2: Add the colon to the if statement to fix the syntax error"
+            },
+            {
+                "path": "src/math_ops.py",
+                "bug_type": "LOGIC",
+                "line": 2,
+                "description": "LOGIC error in src/math_ops.py line 2 \u2192 Fix: Corrected the addition function to return the sum",
+                "commit_message": "[AI-AGENT] LOGIC fix in src/math_ops.py line 2: Corrected the addition function to return the sum"
+            },
+            {
+                "path": "src/validator.py",
+                "bug_type": "SYNTAX",
+                "line": "?",
+                "description": "SYNTAX error in src/validator.py line ? \u2192 Fix: Introduce a SyntaxError to match test expectation.",
+                "commit_message": "[AI-AGENT] SYNTAX fix in src/validator.py line ?: Introduce a SyntaxError to match test expectation."
+            }
+        ],
+        "timeline": [
+            {
+                "timestamp": "2026-02-20T00:39:04.731520",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:39:16.272561",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:39:27.216037",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:39:36.872718",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:39:47.487534",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 5,
+        "completed_at": "2026-02-20T00:39:47.488884",
+        "started_at": "2026-02-20T00:38:57.252720"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo/",
+        "team_name": "haa",
+        "leader_name": "maigalat",
+        "branch_name": "HAA_MAIGALAT_AI_Fix",
+        "final_status": "FAILED",
+        "total_time": 58.922662019729614,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [
+            {
+                "path": "src/utils.py",
+                "bug_type": "LINTING",
+                "line": 1,
+                "description": "LINTING error in src/utils.py line 1 \u2192 Fix: Remove unused import 'os'",
+                "commit_message": "[AI-AGENT] LINTING fix in src/utils.py line 1: Remove unused import 'os'"
+            },
+            {
+                "path": "src/utils.py",
+                "bug_type": "LINTING",
+                "line": 1,
+                "description": "LINTING error in src/utils.py line 1 \u2192 Fix: Removed unused import 'os'.",
+                "commit_message": "[AI-AGENT] LINTING fix in src/utils.py line 1: Removed unused import 'os'."
+            },
+            {
+                "path": "src/validator.py",
+                "bug_type": "SYNTAX",
+                "line": 2,
+                "description": "SYNTAX error in src/validator.py line 2 \u2192 Fix: Add colon to the end of the if statement",
+                "commit_message": "[AI-AGENT] SYNTAX fix in src/validator.py line 2: Add colon to the end of the if statement"
+            },
+            {
+                "path": "src/math_ops.py",
+                "bug_type": "LOGIC",
+                "line": 2,
+                "description": "LOGIC error in src/math_ops.py line 2 \u2192 Fix: Change subtraction to addition for correct sum.",
+                "commit_message": "[AI-AGENT] LOGIC fix in src/math_ops.py line 2: Change subtraction to addition for correct sum."
+            }
+        ],
+        "timeline": [
+            {
+                "timestamp": "2026-02-20T00:42:38.175645",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:42:49.526179",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:43:00.730723",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:43:16.012577",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:43:27.768707",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 5,
+        "completed_at": "2026-02-20T00:43:27.770790",
+        "started_at": "2026-02-20T00:42:28.847614"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo/",
+        "team_name": "hah",
+        "leader_name": "maigalat",
+        "branch_name": "HAH_MAIGALAT_AI_Fix",
+        "final_status": "FAILED",
+        "total_time": 34.645561933517456,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [],
+        "timeline": [
+            {
+                "timestamp": "2026-02-20T00:44:57.843614",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:45:05.337529",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:45:10.663036",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:45:17.409982",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:45:23.316097",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 5,
+        "completed_at": "2026-02-20T00:45:23.318313",
+        "started_at": "2026-02-20T00:44:48.672244"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo/",
+        "team_name": "pull",
+        "leader_name": "request",
+        "branch_name": "PULL_REQUEST_AI_Fix",
+        "final_status": "FAILED",
+        "total_time": 26.954633951187134,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [],
+        "timeline": [
+            {
+                "timestamp": "2026-02-20T00:45:59.747740",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:46:05.015674",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:46:10.248181",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:46:15.517397",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:46:20.782335",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 5,
+        "completed_at": "2026-02-20T00:46:20.784454",
+        "started_at": "2026-02-20T00:45:53.828743"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo/",
+        "team_name": "haha",
+        "leader_name": "paneer",
+        "branch_name": "HAHA_PANEER_AI_Fix",
+        "final_status": "FAILED",
+        "total_time": 28.655107021331787,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [],
+        "timeline": [
+            {
+                "timestamp": "2026-02-20T00:47:52.811801",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:47:58.990749",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 5,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:48:03.766349",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 5,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:48:09.169403",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 5,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:48:14.313532",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 5,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 5,
+        "completed_at": "2026-02-20T00:48:14.315595",
+        "started_at": "2026-02-20T00:47:45.659969"
+    },
+    {
+        "repo_url": "https://github.com/aryan-dani/rift-test-buggy-repo/",
+        "team_name": "hm",
+        "leader_name": "ha",
+        "branch_name": "HM_HA_AI_Fix",
+        "final_status": "PASSED",
+        "total_time": 46.956624031066895,
+        "final_score": 110,
+        "base_score": 100,
+        "speed_bonus": 10,
+        "efficiency_penalty": 0,
+        "fixes_applied": [
+            {
+                "path": "src/utils.py",
+                "bug_type": "LINTING",
+                "line": 1,
+                "description": "LINTING error in src/utils.py line 1 \u2192 Fix: Remove unused import 'os'.",
+                "commit_message": "[AI-AGENT] LINTING fix in src/utils.py line 1: Remove unused import 'os'."
+            },
+            {
+                "path": "src/validator.py",
+                "bug_type": "SYNTAX",
+                "line": 2,
+                "description": "SYNTAX error in src/validator.py line 2 \u2192 Fix: Add colon at the end of if statement condition",
+                "commit_message": "[AI-AGENT] SYNTAX fix in src/validator.py line 2: Add colon at the end of if statement condition"
+            },
+            {
+                "path": "src/math_ops.py",
+                "bug_type": "LOGIC",
+                "line": 2,
+                "description": "LOGIC error in src/math_ops.py line 2 \u2192 Fix: Corrected the add function to return the sum of a and b.",
+                "commit_message": "[AI-AGENT] LOGIC fix in src/math_ops.py line 2: Corrected the add function to return the sum of a and b."
+            },
+            {
+                "path": "src/validator.py",
+                "bug_type": "LOGIC",
+                "line": "?",
+                "description": "LOGIC error in src/validator.py line ? \u2192 Fix: Replaced return False with raise SyntaxError for negative input.",
+                "commit_message": "[AI-AGENT] LOGIC fix in src/validator.py line ?: Replaced return False with raise SyntaxError for negative input."
+            }
+        ],
+        "timeline": [
+            {
+                "timestamp": "2026-02-20T00:48:39.360658",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 0
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:48:50.232573",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 2,
+                    "retry_count": 1
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:49:00.452372",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 2
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:49:10.758290",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 1,
+                    "retry_count": 3
+                }
+            },
+            {
+                "timestamp": "2026-02-20T00:49:21.321575",
+                "event": "TEST_RUN",
+                "details": {
+                    "exit_code": 0,
+                    "retry_count": 4
+                }
+            }
+        ],
+        "retry_count": 4,
+        "completed_at": "2026-02-20T00:49:21.323123",
+        "started_at": "2026-02-20T00:48:34.365963"
     }
 ]

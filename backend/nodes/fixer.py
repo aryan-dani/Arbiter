@@ -78,6 +78,20 @@ def fixer_node(state: AgentState) -> AgentState:
 
     client = genai.Client(api_key=api_key)
 
+    # Build the exception-specific rule if the debugger detected a pytest.raises() case
+    expected_exception = analysis.get('expected_exception', '')
+    exception_rule = (
+        f"\n    EXCEPTION GUARD — READ CAREFULLY:\n"
+        f"    The failing test calls pytest.raises({expected_exception}), meaning the source function\n"
+        f"    must raise {expected_exception} when given bad input instead of returning False or None.\n"
+        f"\n"
+        f"    CORRECT fix: replace `return False` (or equivalent) with `raise {expected_exception}(\"<message>\")`\n"
+        f"    WRONG fix: do NOT insert invalid Python text, do NOT add random text, do NOT break the syntax.\n"
+        f"    The fixed file MUST be syntactically valid Python. `raise {expected_exception}(\"...\")` IS valid Python.\n"
+        f"    NEVER raise ValueError, TypeError, or any other exception — it MUST be {expected_exception}.\n"
+    ) if expected_exception else ""
+
+
     prompt = f"""
     You are an expert Autonomous AI Fixer.
 
@@ -105,6 +119,7 @@ def fixer_node(state: AgentState) -> AgentState:
     - If File is 'requirements.txt': Append the missing library. Do NOT remove existing libraries.
     - If File is 'package.json': Add the dependency to the "dependencies" section.
     - Output the FULL file content in "fixed_code", not just the diff.
+{exception_rule}
 
     Output strictly as JSON (no markdown):
     {{
@@ -112,6 +127,7 @@ def fixer_node(state: AgentState) -> AgentState:
         "fix_action": "<short fix description, e.g. 'remove the import statement' or 'add the colon at the correct position'>"
     }}
     """
+
 
     import time
     
