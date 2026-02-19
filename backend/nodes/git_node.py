@@ -59,14 +59,16 @@ def git_node(state: AgentState) -> AgentState:
         return state
 
     try:
-        # RIFT Production Readiness: wipe all cached files first so __pycache__,
-        # *.pyc, and .env can never be accidentally committed (judge compliance).
+        # RIFT Production Readiness: clean untracked junk (pycache, pyc) then
+        # wipe the index so nothing binary can sneak into the commit.
+        repo.git.execute(["git", "clean", "-fd", "--exclude=.gitignore"])
         repo.git.execute(["git", "rm", "-r", "--cached", ".", "--ignore-unmatch"])
         gitignore_path = os.path.join(repo_path, ".gitignore")
         with open(gitignore_path, "w") as f:
             f.write("__pycache__/\n*.pyc\n.pytest_cache/\n.env\n")
         repo.git.add(".gitignore")
         repo.git.add(all=True)
+
         
         # Check if there are actually changes to commit
         if repo.is_dirty(untracked_files=True) or repo.index.diff("HEAD"):

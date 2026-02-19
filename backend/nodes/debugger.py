@@ -4,6 +4,28 @@ import json
 from backend.nodes import env_loader  # noqa: F401 — loads backend/.env
 from backend.state import AgentState
 
+def _extract_failures_section(logs: str) -> str:
+    """
+    Pull out only the FAILURES block + short test summary from pytest output.
+    The LLM must only look at this — not the full log — to prevent wandering.
+    """
+    lines = logs.splitlines()
+    in_section = False
+    result = []
+    for line in lines:
+        # Start capturing at the FAILURES header or short test summary
+        if line.startswith("FAILURES") or line.startswith("====== FAILURES") or "_ FAILURES _" in line:
+            in_section = True
+        if line.startswith("===== short test summary") or "short test summary info" in line:
+            in_section = True
+        if in_section:
+            result.append(line)
+    if result:
+        return "\n".join(result)
+    # Fallback: return the last 80 lines which usually have the error
+    return "\n".join(lines[-80:])
+
+
 def debugger_node(state: AgentState) -> AgentState:
     """
     Analyzes error logs to categorize bugs and identify locations.
@@ -58,35 +80,36 @@ def debugger_node(state: AgentState) -> AgentState:
     for name, content in source_files.items():
         source_files_context += f"\n--- FILE: {name} ---\n{content}\n"
 
+    # Extract only the FAILURES section — prevents LLM from wandering into unrelated code
+    failures_section = _extract_failures_section(error_logs)
+
     prompt = f"""
     You are an expert Autonomous AI Debugger for the RIFT 2026 Hackathon.
     Your goal is to analyze CI/CD failure logs and identify the ROOT CAUSE source file and line number.
 
-    STRICT REASONING PROTOCOL (Adhere to this above all else):
-    1. PRIORITIZE TOOL OUTPUT: The logs contain output from 'flake8' and 'pytest'. Use it.
-    2. LINTING FIXES: If you see error codes like F401, E9, F63, F7, F82, you MUST categorize this as a 'LINTING' bug.
-       - Example: 'os' imported but unused -> File: src/utils.py, Bug: LINTING, Fix: Remove unused import.
-    3. DEPENDENCY GUARD: Do NOT suggest adding libraries to requirements.txt unless you see a 'ModuleNotFoundError' or 'ImportError' in the logs.
-    4. NO-OP DETECTION: If a fix was already attempted for this line/file, try a different approach.
-    5. CLASSIFICATION: Bug Type must be exactly one of: LINTING, SYNTAX, LOGIC, TYPE_ERROR, IMPORT, INDENTATION.
-    6. LINE NUMBERS: You have the file content with line numbers. You MUST identify the specific line number (1 to N). NEVER return line 0.
+    STRICT ANTI-WANDERING PROTOCOL (Adhere to this above all else):
+    1. READ ONLY the FAILURES section below. Do NOT look at files not mentioned in it.
+    2. The ONLY file you are allowed to fix is the one in the FAILURES section traceback.
+       If aggregator.py is not in the FAILURES section, you MUST ignore aggregator.py entirely.
+    3. TRACEBACK GROUNDING: Find the last file in the traceback that is a /src/ file — that is your fix target.
+    4. NO-OP GUARD: If the failing test uses `pytest.raises(SomeError)` and the code returns False,
+       you MUST raise that specific error — do NOT silently make the logic pass.
+    5. LINTING FIXES: Flake8 codes F401, E9, F63, F7, F82 → bug_type = "LINTING".
+    6. CLASSIFICATION: Bug Type must be exactly one of: LINTING, SYNTAX, LOGIC, TYPE_ERROR, IMPORT, INDENTATION.
+    7. LINE NUMBERS: Always return the specific failing line (1..N). NEVER return line 0.
+    8. NEVER return a test file (test_*.py, *_test.py) as the fix target.
 
-    Error Logs:
-    {error_logs}
+    FAILURES Section (from pytest output):
+    {failures_section}
 
-    Source Files Content (with line numbers):
+    Source Files (for context — ONLY read files mentioned in the FAILURES section above):
     {source_files_context}
 
-    CRITICAL RULES:
-    1. NEVER return a test file (test_*.py, *_test.py) as the "file" to fix.
-       Test files show WHERE the failure was detected, not WHERE the bug lives.
-    2. Always trace AssertionErrors and failures back to the SOURCE file being tested.
-       Example: if test_bank.py line 13 fails with wrong balance, the bug is in bank.py deposit().
-    3. Pick the file from the "Source Files Content" list above.
-    4. MAPPING EXAMPLES:
-       - F401 'os' imported but unused -> File: src/utils.py, Bug: LINTING, Fix: Remove unused import 'os'
-       - test_math.py fails assertion -> File: src/math_ops.py, Bug: LOGIC, Fix: Correct the calculation
-       - ModuleNotFoundError: No module named 'requests' -> File: requirements.txt, Bug: IMPORT, Fix: Add requests
+    MAPPING EXAMPLES:
+    - test_math.py AssertionError → bug is in src/math_ops.py, not test_math.py
+    - F401 'os' imported but unused → File: src/utils.py, Bug: LINTING
+    - pytest.raises(SyntaxError) but code returns False → raise SyntaxError in source file
+    - ModuleNotFoundError: No module named 'requests' → File: requirements.txt, Bug: IMPORT
 
     Output strictly as JSON:
     {{
