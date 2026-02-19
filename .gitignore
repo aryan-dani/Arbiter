@@ -1,11 +1,15 @@
 __pycache__/
 *.pyc
+*.pem
 temp_dummy_repo/
 temp_repos/
 backend/.env
 frontend/.env
+frontend/.env.local
 venv/
 backend/venv/
+backend/aws_key/
+aws_key/
 .env
 node_modules/
 frontend/node_modules/
