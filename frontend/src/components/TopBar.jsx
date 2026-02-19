@@ -1,8 +1,26 @@
-import { Shield, Cpu, HardDrive, Timer, Terminal } from 'lucide-react';
+import { Shield, RefreshCw, Clock, Wrench, Terminal } from 'lucide-react';
 import useAgentStore from '../store/useAgentStore';
 
 export default function TopBar() {
-  const { isRunning } = useAgentStore();
+  const { isRunning, runData, runComplete, stats } = useAgentStore();
+
+  const metrics = [
+    {
+      icon: RefreshCw,
+      label: 'ITERATIONS',
+      value: runData?.iterations?.length ?? '—',
+    },
+    {
+      icon: Clock,
+      label: 'HEAL TIME',
+      value: runComplete ? stats.avgHealTime : '—',
+    },
+    {
+      icon: Wrench,
+      label: 'FIXES',
+      value: runData?.totalFixes ?? '—',
+    },
+  ];
 
   return (
     <header className="flex items-center justify-between px-5 py-3 bg-arbiter-surface border-b border-arbiter-border">
@@ -17,24 +35,16 @@ export default function TopBar() {
         </span>
       </div>
 
-      {/* Right: system metrics */}
+      {/* Right: real run metrics */}
       <div className="flex items-center gap-4 lg:gap-5">
         <div className="hidden sm:flex items-center gap-4 text-[11px] text-arbiter-text-muted font-mono">
-          <span className="flex items-center gap-1.5">
-            <Cpu className="w-3.5 h-3.5 text-arbiter-text-dim" />
-            <span className="uppercase tracking-wider font-medium text-arbiter-text-dim">CPU</span>
-            <span className="text-arbiter-text font-semibold">23%</span>
-          </span>
-          <span className="flex items-center gap-1.5">
-            <HardDrive className="w-3.5 h-3.5 text-arbiter-text-dim" />
-            <span className="uppercase tracking-wider font-medium text-arbiter-text-dim">Memory</span>
-            <span className="text-arbiter-text font-semibold">1.2GB</span>
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Timer className="w-3.5 h-3.5 text-arbiter-text-dim" />
-            <span className="uppercase tracking-wider font-medium text-arbiter-text-dim">Latency</span>
-            <span className="text-arbiter-text font-semibold">12ms</span>
-          </span>
+          {metrics.map((m) => (
+            <span key={m.label} className="flex items-center gap-1.5">
+              <m.icon className="w-3.5 h-3.5 text-arbiter-text-dim" />
+              <span className="uppercase tracking-wider font-medium text-arbiter-text-dim">{m.label}</span>
+              <span className="text-arbiter-text font-semibold">{m.value}</span>
+            </span>
+          ))}
         </div>
 
         {/* Status badge */}
@@ -48,3 +58,4 @@ export default function TopBar() {
     </header>
   );
 }
+
