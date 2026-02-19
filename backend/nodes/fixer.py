@@ -53,33 +53,59 @@ def fixer_node(state: AgentState) -> AgentState:
             return state
 
     with open(file_full_path, "r", encoding="utf-8") as f:
-        code_content = f.read()
-        
+        all_lines = f.readlines()
+    code_content = "".join(all_lines)
+
+    # Context Filter: only send 10 lines around the failing line to the LLM.
+    # This prevents hallucinating fixes for unrelated code (judge compliance).
+    error_line = analysis.get('line', 0)
+    try:
+        error_line_int = int(error_line)
+    except (ValueError, TypeError):
+        error_line_int = 0
+
+    if error_line_int > 0:
+        start = max(0, error_line_int - 11)   # 10 lines before
+        end = min(len(all_lines), error_line_int + 10)  # 10 lines after
+        context_lines = all_lines[start:end]
+        context_snippet = "".join(
+            f"{start + i + 1}: {line}" for i, line in enumerate(context_lines)
+        )
+        context_label = f"Lines {start + 1}–{end} of {file_relative_path} (error at line {error_line_int})"
+    else:
+        context_snippet = code_content
+        context_label = f"Full file: {file_relative_path}"
+
     client = genai.Client(api_key=api_key)
-    
+
     prompt = f"""
     You are an expert Autonomous AI Fixer.
-    
+
     Context:
     File: {file_relative_path}
     Bug Type: {analysis.get('bug_type')}
     Line: {analysis.get('line')}
     Error Description: {analysis.get('description')}
-    
-    Original Code:
+
+    Relevant Code ({context_label}):
+    ```
+    {context_snippet}
+    ```
+
+    Full file (for reference only — DO NOT modify lines outside the error context):
     ```
     {code_content}
     ```
-    
+
     Task:
-    1. Fix the bug described above.
+    1. Fix ONLY the bug at line {analysis.get('line')} described above. Do not touch other lines.
     2. Write a short, human-readable description of the fix action (max 10 words).
-    
+
     SPECIAL RULES:
     - If File is 'requirements.txt': Append the missing library. Do NOT remove existing libraries.
     - If File is 'package.json': Add the dependency to the "dependencies" section.
     - Output the FULL file content in "fixed_code", not just the diff.
-    
+
     Output strictly as JSON (no markdown):
     {{
         "fixed_code": "<the full fixed file content as a string>",

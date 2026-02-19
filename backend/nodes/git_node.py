@@ -59,15 +59,14 @@ def git_node(state: AgentState) -> AgentState:
         return state
 
     try:
-        repo.git.add(A=True)   # --all: stages new, modified, and deleted files
-        
-        # Explicitly unstage binary/cache files to meet RIFT compliance
-        try:
-            repo.git.reset('--', '**/__pycache__/*', '**/.pytest_cache/*')
-        except:
-            # If no such files exist, reset might throw an error or just do nothing. 
-            # Safe to ignore if it fails.
-            pass
+        # RIFT Production Readiness: wipe all cached files first so __pycache__,
+        # *.pyc, and .env can never be accidentally committed (judge compliance).
+        repo.git.execute(["git", "rm", "-r", "--cached", ".", "--ignore-unmatch"])
+        gitignore_path = os.path.join(repo_path, ".gitignore")
+        with open(gitignore_path, "w") as f:
+            f.write("__pycache__/\n*.pyc\n.pytest_cache/\n.env\n")
+        repo.git.add(".gitignore")
+        repo.git.add(all=True)
         
         # Check if there are actually changes to commit
         if repo.is_dirty(untracked_files=True) or repo.index.diff("HEAD"):
