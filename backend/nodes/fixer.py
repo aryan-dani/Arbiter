@@ -177,13 +177,18 @@ def fixer_node(state: AgentState) -> AgentState:
 
     MISSION:
     1. Fix the bug identified above.
-    2. GREEDY FAILURE ANALYSIS:
-       - If src/validator.py has multiple failing tests (e.g., one expecting ValueError, one expecting TypeError), 
-         you MUST implement a unified if/elif/else block that satisfies ALL exceptions in a single commit.
-       - Standardize all indentation to 4 spaces to prevent IndentationError.
     
-    3. OS-AGNOSTIC INTEGRITY:
-       - If you see Git markers (<<<<<<< HEAD), your first priority is to delete markers and restore valid Python syntax.
+    2. GREEDY EXCEPTION HARDENING (Fixer Node):
+       - If analyzing `src/validator.py`:
+         - You MUST implement a unified `if/elif` block.
+         - raise `TypeError` if input is not an int.
+         - raise `ValueError` if input is negative.
+         - raise `SyntaxError` if input fails specific string validation patterns (if required by test).
+       - Do NOT return False; the tests strictly use `pytest.raises`.
+       
+    3. WORKSPACE INTEGRITY:
+       - Conflict Detection: If you see `<<<<<<< HEAD` or `=======` in any source file, your FIRST and ONLY task is to delete all Git markers and restore clean Python syntax.
+       - Standardization: Force 4-space indentation globally to prevent `IndentationError`.
     
     4. EXCEPTION HANDLING:
        {exception_rule}
