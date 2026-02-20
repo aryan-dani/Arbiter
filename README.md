@@ -8,18 +8,16 @@
 
 Our agent follows a **Multi-Agent Architecture** powered by **Gemini 2.5 Flash** and executed within **Docker** sandboxes.
 
-```mermaid
-graph TD
-    User[User Input] --> Coordinator
-    Coordinator --> Discovery[Discovery Node]
-    Discovery --> Tester[Tester Node (Docker)]
-    Tester --> Debugger[Debugger Node]
-    Debugger --> Fixer[Fixer Node (Gemini 2.5)]
-    Fixer --> Git[Git Node]
-    Git --> Tester
-    Tester --> Scoring[Scoring Node]
-    Scoring --> Dashboard[React Dashboard]
-```
+User[User Input] --> Coordinator
+Coordinator --> Discovery[Discovery Node]
+Discovery --> Tester[Tester Node (Docker)]
+Tester --> Debugger[Debugger Node]
+Debugger --> Fixer[Fixer Node (Gemini 2.5)]
+Fixer --> Git[Git Node]
+Git --> Tester
+Tester --> Scoring[Scoring Node]
+Scoring --> Dashboard[React Dashboard]
+
 
 ### Core Components
 1. **Discovery Node**: Clones repo, detects stack (Python/Node), maps file structure.
@@ -61,8 +59,8 @@ The agent autonomously detects and fixes:
 
 ### 1. Clone & Configure
 ```bash
-git clone https://github.com/your-repo/rift-agent.git
-cd rift-agent
+git clone https://github.com/aryan-dani/RIFT_2026_Let-s_See.git
+cd RIFT_2026_Let-s_See
 
 # Backend Setup
 cd backend
@@ -96,6 +94,5 @@ npm run dev
 
 ## 👥 Team Members
 
-- **[Leader Name]**: Full Stack & AI Logic
-- **[Member Name]**: Frontend & Design
-- **[Member Name]**: DevOps & Testing
+- **[Leader Name]**: Aryan Dani [Full Stack & AI Logic]
+- **[Member Name]**: Himali Dandavate [Frontend & Design]
