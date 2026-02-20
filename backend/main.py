@@ -48,7 +48,7 @@ class HealingRequest(BaseModel):
     repo_url: str
     team_name: str
     leader_name: str
-    max_iterations: int = 5
+    max_iterations: int = 10
     model_name: str = "gemini-2.5-flash"
 
 
@@ -146,11 +146,11 @@ async def run_healing_workflow(request: HealingRequest, run_id: str = None):
         # Update Supabase Final Status
         # Map state statuses to DB-compliant statuses (PASSED, FAILED, ERROR)
         status_map = {
-            "PASSED": "PASSED",
+            "PASSED": "SUCCESS",
             "FAILED": "FAILED",
             "ERROR": "FAILED",
             "DISCOVERY_FAILED": "FAILED",
-            "NO_BUGS_FOUND": "PASSED" # If we found no bugs, the CI is effectively clean
+            "NO_BUGS_FOUND": "SUCCESS" # If we found no bugs, the CI is effectively clean
         }
         db_status = status_map.get(final_state.get('final_status'), 'FAILED')
 
