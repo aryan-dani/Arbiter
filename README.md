@@ -18,6 +18,9 @@ Git --> Tester
 Tester --> Scoring[Scoring Node]
 Scoring --> Dashboard[React Dashboard]
 
+![Architecture Diagram](docs/Architecture_diagram_the_arbiter.png)
+![Agent Workflow Diagram](docs/Agent_workflow_the_arbiter.png)
+
 
 ### Core Components
 1. **Discovery Node**: Clones repo, detects stack (Python/Node), maps file structure.
