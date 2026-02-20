@@ -36,12 +36,12 @@ def calculate_score(state: AgentState) -> tuple[int, float, int, int, int]:
         duration = datetime.now().timestamp() - start_time_ts
 
     # Speed bonus only for 100% completion
-    speed_bonus = 10 if duration < 600 and base_score == 100 else 0
+    speed_bonus = 10 if duration < 300 and base_score == 100 else 0
     
     # Calculate Commits
     fixes = state.get('fixes_applied', [])
     commit_count = len(fixes)
-    efficiency_penalty = max(0, (commit_count - 15) * 2) if commit_count > 15 else 0
+    efficiency_penalty = max(0, (commit_count - 20) * 2) if commit_count > 20 else 0
         
     final_score = max(0, base_score + speed_bonus - efficiency_penalty)
     return final_score, duration, base_score, speed_bonus, efficiency_penalty
