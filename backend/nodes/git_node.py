@@ -62,9 +62,15 @@ def git_node(state: AgentState) -> AgentState:
 
     try:
         # ── Atomic Cleanup: Replaces git clean -fd with permission-safe purge ──
-        import subprocess
-        subprocess.run('find . -name "__pycache__" -type d -exec rm -rf {} +', shell=True, check=False, cwd=repo_path)
-        subprocess.run('find . -name "*.pyc" -delete', shell=True, check=False, cwd=repo_path)
+        # ── Atomic Cleanup: Replaces git clean -fd with permission-safe purge ──
+        import shutil
+        from pathlib import Path
+
+        # Robust cleanup for Windows/Linux
+        for path in Path(repo_path).rglob("__pycache__"):
+            shutil.rmtree(path, ignore_errors=True)
+        for path in Path(repo_path).rglob("*.pyc"):
+            path.unlink(missing_ok=True)
 
         repo.git.execute(["git", "rm", "-r", "--cached", ".", "--ignore-unmatch"])
         gitignore_path = os.path.join(repo_path, ".gitignore")
@@ -105,6 +111,15 @@ def git_node(state: AgentState) -> AgentState:
             repo.git.pull('origin', branch_name, rebase=True)
         except Exception as pull_err:
             print(f"Git: Pull --rebase failed (might be first push): {pull_err}")
+            # If rebase fails, nuke the state and reset to origin
+            try:
+                repo.git.execute(["git", "rebase", "--abort"], with_extended_output=False, ignore_errors=True) # ignore_errors might not be valid kwarg for execute in all versions, but let's try or just catch
+            except:
+                pass
+            try:
+                repo.git.execute(["git", "reset", "--hard", f"origin/{branch_name}"])
+            except:
+                pass
 
         repo.remotes.origin.push(refspec=f"{branch_name}:{branch_name}")
         print(f"Git: Pushed branch '{branch_name}' to origin.")
