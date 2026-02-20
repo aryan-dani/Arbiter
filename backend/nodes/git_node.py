@@ -41,8 +41,8 @@ def git_node(state: AgentState) -> AgentState:
         print(f"Git: Could not open repo at {repo_path}: {e}")
         return state
 
-    author = Actor("AI Agent", "agent@rift2026.com")
-    committer = Actor("AI Agent", "agent@rift2026.com")
+    author = Actor("AI Agent", "agent@rift.local")
+    committer = Actor("AI Agent", "agent@rift.local")
 
     branch_name = _make_branch_name(team_name, leader_name)
     print(f"Git: Target branch = {branch_name}")
@@ -113,7 +113,7 @@ def git_node(state: AgentState) -> AgentState:
             print(f"Git: Pull --rebase failed (might be first push): {pull_err}")
             # If rebase fails, nuke the state and reset to origin
             try:
-                repo.git.execute(["git", "rebase", "--abort"], with_extended_output=False, ignore_errors=True) # ignore_errors might not be valid kwarg for execute in all versions, but let's try or just catch
+                repo.git.execute(["git", "rebase", "--abort"], with_extended_output=False, ignore_errors=True)
             except:
                 pass
             try:
@@ -128,7 +128,7 @@ def git_node(state: AgentState) -> AgentState:
         # ── Open a Pull Request only on the first push ───────────────
         if not state.get('pr_url') and github_token:
             try:
-                import urllib.request
+                import requests
                 import json as _json
 
                 # Parse owner/repo from clean remote URL (no token)
@@ -136,6 +136,22 @@ def git_node(state: AgentState) -> AgentState:
                 parts = clean_url.strip("/").split("/")  # ['github.com', 'owner', 'repo']
                 if len(parts) >= 3:
                     owner, repo_name = parts[-2], parts[-1]
+                    
+                    # ── DYNAMIC DEFAULT BRANCH FETCH ──
+                    # Allow 'master', 'dev', 'trunk' etc. instead of hardcoded 'main'
+                    default_branch = "main" # Fallback
+                    try:
+                        repo_api_url = f"https://api.github.com/repos/{owner}/{repo_name}"
+                        headers = {
+                            "Authorization": f"token {github_token}",
+                            "Accept": "application/vnd.github.v3+json"
+                        }
+                        resp = requests.get(repo_api_url, headers=headers)
+                        if resp.status_code == 200:
+                            default_branch = resp.json().get("default_branch", "main")
+                            print(f"Git: Detected default branch -> {default_branch}")
+                    except Exception as db_err:
+                        print(f"Git: Failed to fetch default branch ({db_err}), defaulting to 'main'.")
 
                     # CHECK FOR EXISTING PR FIRST to avoid 422
                     # There isn't an easy way to check without listing all PRs, which might be overkill.
@@ -151,35 +167,24 @@ def git_node(state: AgentState) -> AgentState:
                             "All changes were committed with the `[AI-AGENT]` prefix."
                         ),
                         "head": branch_name,
-                        "base": "main",
+                        "base": default_branch,
                     }
 
-                    pr_data = _json.dumps(pr_body).encode("utf-8")
                     pr_api_url = f"https://api.github.com/repos/{owner}/{repo_name}/pulls"
-                    req = urllib.request.Request(
-                        pr_api_url,
-                        data=pr_data,
-                        headers={
-                            "Authorization": f"token {github_token}",
-                            "Accept": "application/vnd.github.v3+json",
-                            "Content-Type": "application/json",
-                            "User-Agent": "RIFT2026-Agent",
-                        },
-                        method="POST",
-                    )
-                    with urllib.request.urlopen(req) as resp:
-                        pr_result = _json.loads(resp.read().decode())
+                    resp = requests.post(pr_api_url, json=pr_body, headers=headers)
+                    
+                    if resp.status_code in [200, 201]:
+                        pr_result = resp.json()
                         pr_html_url = pr_result.get("html_url", "")
                         print(f"Git: PR created → {pr_html_url}")
                         state['pr_url'] = pr_html_url
-            except urllib.error.HTTPError as http_err:
-                if http_err.code == 422:
-                     print(f"Git: PR creation skipped (422 Unprocessable Entity) - likely already exists.")
-                     # Ideally we'd fetch the existing PR URL here but for now just suppressing the error is enough
-                else:
-                     print(f"Git: PR creation failed: {http_err}")
+                    elif resp.status_code == 422:
+                        print(f"Git: PR creation skipped (422 Unprocessable Entity) - likely already exists.")
+                    else:
+                        print(f"Git: PR creation failed: {resp.status_code} {resp.text}")
+
             except Exception as pr_err:
-                print(f"Git: PR creation failed: {pr_err}")
+                print(f"Git: PR creation process failed: {pr_err}")
         elif state.get('pr_url'):
             print(f"Git: PR already open at {state['pr_url']} — skipping duplicate creation.")
 

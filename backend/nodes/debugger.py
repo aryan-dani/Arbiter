@@ -304,7 +304,7 @@ def debugger_node(state: AgentState) -> AgentState:
        - IGNORE PASSED: Likely passing files do not need fixes unless they have syntax errors.
        - STRING ACCURACY: 
          - If a test fails due to a string mismatch (e.g. `AssertionError: 'A' != 'B'`), trust the test's expectation.
-         - For example, if `test_utils.py` fails on `useful_function`, ensure the return value EXACTLY matches the test expectation (including punctuation).
+         - For example, if a test fails on a function, ensure the return value EXACTLY matches the test expectation (including punctuation).
 
     5. GREEDY EXCEPTION HARDENING (The "Boss" Level):
        - If a test fails due to validation logic (e.g., `validate_age` or similar):
@@ -322,7 +322,7 @@ def debugger_node(state: AgentState) -> AgentState:
     1. GREEDY FAILURE ANALYSIS:
        - Do NOT focus on a single failure. Scan the ENTIRE pytest log.
        - If multiple tests fail in the same file, summarize ALL of them.
-       - If src/validator.py has multiple failing tests (e.g., one expecting ValueError, one expecting TypeError), 
+       - If a file has multiple failing tests (e.g., one expecting ValueError, one expecting TypeError), 
          you MUST flag this so the fixer implements a unified if/elif/else block.
 
     2. ANCHOR PRIORITY:
@@ -351,17 +351,17 @@ def debugger_node(state: AgentState) -> AgentState:
     Source Files (for context):
     {source_files_context}
 
-    SPECIAL INSTRUCTION FOR src/validator.py (if applicable):
-    - You MUST ensure it handles BOTH negative input (raising ValueError) AND type safety (raising TypeError if len() is called on an int) in a single block.
-    - Example: if not isinstance(age, int): raise TypeError... elif age < 0: raise ValueError...
+    SPECIAL INSTRUCTION FOR VALIDATION LOGIC (if applicable):
+    - You MUST ensure it handles BOTH negative input (raising ValueError) AND type safety (raising TypeError) in a single block.
+    - Example: if not isinstance(val, int): raise TypeError... elif val < 0: raise ValueError...
 
     CLASSIFICATION: Bug Type must be exactly one of:
     LINTING, SYNTAX, LOGIC, TYPE_ERROR, IMPORT, INDENTATION, MARKER_CLEANUP
 
     Output strictly as JSON:
     {{
-        "file": "src/utils.py",
-        "line": 1,
+        "file": "src/module.py",
+        "line": 10,
         "bug_type": "LINTING",
         "description": "Remove unused import 'os'"
     }}

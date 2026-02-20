@@ -179,10 +179,10 @@ def fixer_node(state: AgentState) -> AgentState:
     1. Fix the bug identified above.
     
     2. GREEDY EXCEPTION HARDENING (Fixer Node):
-       - If analyzing `src/validator.py`:
+       - If analyzing validation logic:
          - You MUST implement a unified `if/elif` block.
-         - raise `TypeError` if input is not an int.
-         - raise `ValueError` if input is negative.
+         - raise `TypeError` if input is not an int/correct type.
+         - raise `ValueError` if input is invalid (e.g. negative).
          - raise `SyntaxError` if input fails specific string validation patterns (if required by test).
        - Do NOT return False; the tests strictly use `pytest.raises`.
        
@@ -303,7 +303,8 @@ def fixer_node(state: AgentState) -> AgentState:
             "bug_type": bug_type,
             "line": line_num,
             "description": judge_description,
-            "commit_message": f"[AI-AGENT] {bug_type} fix in {file_relative_path} line {line_num}: {fix_action}"
+            "commit_message": f"[AI-AGENT] {bug_type} fix in {file_relative_path} line {line_num}: {fix_action}",
+            "status": "Fixed"  # Dashboard requirement: Status column
         }
         
         if 'fixes_applied' not in state:
