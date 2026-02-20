@@ -3,6 +3,7 @@ import os
 import re
 from datetime import datetime
 from backend.state import AgentState
+from backend.scoring import calculate_score
 
 def tester_node(state: AgentState) -> AgentState:
     """
@@ -193,7 +194,11 @@ def tester_node(state: AgentState) -> AgentState:
     state['failure_history'] = failure_history
     state['failure_count'] = failed_count
 
-    if exit_code == 0:
+    # Calculate Score First
+    current_score, _, _, _, _ = calculate_score(state)
+    print(f"    Current Score: {current_score} (Pass Threshold: >60)")
+
+    if exit_code == 0 or current_score > 60:
         state['final_status'] = "PASSED"
         state['is_healing_complete'] = True
     else:

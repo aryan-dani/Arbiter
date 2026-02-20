@@ -112,18 +112,31 @@ def fixer_node(state: AgentState) -> AgentState:
 
     client = genai.Client(api_key=api_key)
 
-    # Build the exception-specific rule if the debugger detected a pytest.raises() case
-    expected_exception = analysis.get('expected_exception', '')
-    exception_rule = (
-        f"\n    EXCEPTION GUARD — READ CAREFULLY:\n"
-        f"    The failing test calls pytest.raises({expected_exception}), meaning the source function\n"
-        f"    must raise {expected_exception} when given bad input instead of returning False or None.\n"
-        f"\n"
-        f"    CORRECT fix: replace `return False` (or equivalent) with `raise {expected_exception}(\"<message>\")`\n"
-        f"    WRONG fix: do NOT insert invalid Python text, do NOT add random text, do NOT break the syntax.\n"
-        f"    The fixed file MUST be syntactically valid Python. `raise {expected_exception}(\"...\")` IS valid Python.\n"
-        f"    NEVER raise ValueError, TypeError, or any other exception — it MUST be {expected_exception}.\n"
-    ) if expected_exception else ""
+    # Build the exception-specific rule
+    expected_exceptions = analysis.get('expected_exceptions', [])
+    if not expected_exceptions and analysis.get('expected_exception'):
+        expected_exceptions = [analysis.get('expected_exception')]
+
+    exception_rule = ""
+    if expected_exceptions:
+        ex_str = ", ".join(expected_exceptions)
+        if len(expected_exceptions) > 1:
+            exception_rule = (
+                f"\n    EXCEPTION GUARD — MULTIPLE EXPECTATIONS:\n"
+                f"    The failing tests expect the following exceptions: {ex_str}.\n"
+                f"    You MUST implement logic to raise EACH exception under the correct condition.\n"
+                f"    Do NOT mutually exclude them. Use if/elif/else blocks to handle multiple invalid states.\n"
+                f"    Example: if x < 0: raise ValueError(...) elif not isinstance(x, int): raise TypeError(...)\n"
+            )
+        else:
+            expected_exception = expected_exceptions[0]
+            exception_rule = (
+                f"\n    EXCEPTION GUARD — READ CAREFULLY:\n"
+                f"    The failing test calls pytest.raises({expected_exception}).\n"
+                f"    Your fix MUST be to raise {expected_exception} when given bad input.\n"
+                f"    Ensure the code raises {expected_exception} for the specific processed failure.\n"
+                f"    Do NOT simply return False or None.\n"
+            )
 
 
     # ── AGENT MEMORY: Check for previous successful fixes ──
@@ -144,8 +157,8 @@ def fixer_node(state: AgentState) -> AgentState:
         )
 
     prompt = f"""
-    You are an expert Autonomous AI Fixer.
-
+    You are "The Arbiter" — an Elite Autonomous DevOps Engineer for the RIFT 2026 Hackathon.
+    
     Context:
     File: {file_relative_path}
     Bug Type: {analysis.get('bug_type')}
@@ -162,21 +175,25 @@ def fixer_node(state: AgentState) -> AgentState:
     {code_content}
     ```
 
-    Task:
-    1. Fix ONLY the bug at line {analysis.get('line')} described above. Do not touch other lines.
-    2. Write a short, human-readable description of the fix action (max 10 words).
+    MISSION:
+    1. Fix the bug identified above.
+    2. GREEDY FAILURE ANALYSIS:
+       - If src/validator.py has multiple failing tests (e.g., one expecting ValueError, one expecting TypeError), 
+         you MUST implement a unified if/elif/else block that satisfies ALL exceptions in a single commit.
+       - Standardize all indentation to 4 spaces to prevent IndentationError.
+    
+    3. OS-AGNOSTIC INTEGRITY:
+       - If you see Git markers (<<<<<<< HEAD), your first priority is to delete markers and restore valid Python syntax.
+    
+    4. EXCEPTION HANDLING:
+       {exception_rule}
 
-    SPECIAL RULES:
-    - If File is 'requirements.txt': Append the missing library. Do NOT remove existing libraries.
-    - If File is 'package.json': Add the dependency to the "dependencies" section.
-    - Output the FULL file content in "fixed_code", not just the diff.
-{exception_rule}
-{reference_fix_prompt}
+    {reference_fix_prompt}
 
     Output strictly as JSON (no markdown):
     {{
         "fixed_code": "<the full fixed file content as a string>",
-        "fix_action": "<short fix description, e.g. 'remove the import statement' or 'add the colon at the correct position'>"
+        "fix_action": "<short fix description>"
     }}
     
     IMPORTANT: You are a JSON-ONLY generator. You must return EXACTLY this schema: {{"fixed_code": "..."}}. 
