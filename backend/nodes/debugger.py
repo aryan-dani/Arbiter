@@ -266,10 +266,7 @@ def debugger_node(state: AgentState) -> AgentState:
                 f"    If multiple exceptions are expected (e.g. ValueError AND TypeError), you MUST handle all conditions.\n"
             )
 
-        if "=== PYTEST FAILURES ===" in failures_section:
-            if "=== FLAKE8 LINTING ERRORS" in failures_section:
-                print("Debugger: Test Failures detected. STRIPPING Linting Errors to force Logic focus.")
-                failures_section = re.sub(r'=== FLAKE8 LINTING ERRORS.*?=== PYTEST FAILURES ===', '=== PYTEST FAILURES ===', failures_section, flags=re.DOTALL)
+        # No longer stripping linting errors. The Sovereign Prompt handles F401.
 
         file_list = list(source_files.keys())
         file_list_str = ", ".join(file_list)

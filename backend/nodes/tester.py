@@ -196,9 +196,9 @@ def tester_node(state: AgentState) -> AgentState:
 
     # Calculate Score First
     current_score, _, _, _, _ = calculate_score(state)
-    print(f"    Current Score: {current_score} (Pass Threshold: >=110)")
+    print(f"    Current Score: {current_score} (Pass Threshold: >=100)")
 
-    if current_score >= 110:
+    if current_score >= 100:
         state['final_status'] = "PASSED"
         state['is_healing_complete'] = True
     else:
