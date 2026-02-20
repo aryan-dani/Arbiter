@@ -289,36 +289,34 @@ def debugger_node(state: AgentState) -> AgentState:
        - Do NOT attempt logic fixes until syntax is clean.
 
     2. SYNTAX/LINTING BLOCKERS:
-       - Fix 'SyntaxError' or 'IndentationError' in `src/formatter.py` and `src/validator.py`.
+       - Fix 'SyntaxError' or 'IndentationError' in any file.
        - Fix 'F401' (Unused Import) errors:
-         - Remove `import os`, `import sys` from `src/utils.py`, `src/formatter.py`, or `src/validator.py` if flagged as unused.
+         - Remove `import os`, `import sys` or other unused imports if flagged by flake8.
        - Force 4-space indentation globally.
 
     3. ANTI-HALLUCINATION & ANCHOR MAPPING:
        - Strict Rule: Only target files found in 'Discovered Source Files'.
-       - Do NOT suggest fixes for `src/boss.py`. Logic for `test_boss.py` resides in `src/validator.py` and `src/math_ops.py`.
-       - Import Fix: If `test_app.py` fails with `ImportError`, ensure `src/app.py` has a properly defined `main()` or `__init__.py` exposes modules.
+       - Do NOT suggest fixes for files that do not exist (e.g. if `test_boss.py` exists but `src/boss.py` does not, check imports).
+       - Import Fix: If a test fails with `ImportError`, ensure the imported module exists and has a properly defined `main()` or `__init__.py`.
 
     4. GHOST FAILURE SWEEP (FINAL 110 PUSH):
-       - TARGET OUTLIERS: Focus heavily on `tests/test_utils.py` and `tests/test_session.py`.
-       - IGNORE PASSED: `src/validator.py` and `src/math_ops.py` are likely passing. Do not prioritize them unless they have syntax errors.
-       - STRING ACCURACY (`src/utils.py`): 
-         - If `test_utils.py` fails, check `useful_function`. 
-         - It MUST return exactly: "This is a useful function." (Watch for typo/punctuation differences).
+       - TARGET OUTLIERS: Focus heavily on any test files in `tests/`.
+       - IGNORE PASSED: Likely passing files do not need fixes unless they have syntax errors.
+       - STRING ACCURACY: 
+         - If a test fails due to a string mismatch (e.g. `AssertionError: 'A' != 'B'`), trust the test's expectation.
+         - For example, if `test_utils.py` fails on `useful_function`, ensure the return value EXACTLY matches the test expectation (including punctuation).
 
     5. GREEDY EXCEPTION HARDENING (The "Boss" Level):
-       - If `test_boss.py` fails due to `validate_age`:
-         - Map the failure to `src/validator.py`.
-         - You MUST implement a unified `if/elif` block:
-           - raise `TypeError` if input is not an int.
-           - raise `ValueError` if input is negative.
-           - raise `SyntaxError` if input fails string patterns.
+       - If a test fails due to validation logic (e.g., `validate_age` or similar):
+         - Map the failure to the corresponding source file.
+         - You MUST implement a unified `if/elif` block to handle ALL expected exceptions.
+           - raise `TypeError` if input is the wrong type.
+           - raise `ValueError` if input is invalid (e.g. negative).
+           - raise `SyntaxError` or others if strictly required by the test.
 
-    6. VALIDATOR LOGIC:
-       - If `src/validator.py` has NO syntax errors, do NOT over-optimize it unless fixing specific exceptions above.
-    
-    7. MATH LOGIC:
-       - Logic for `test_boss.py::test_logic` is in `src/math_ops.py`. Change `*` to `+`.
+    6. CODE LOGIC:
+       - If a test fails due to incorrect logic (e.g. `AssertionError: 5 != 6`), fix the math or logic in the source file.
+       - Example: Change `*` to `+` if the test expects addition.
     *****************************************
 
     1. GREEDY FAILURE ANALYSIS:
