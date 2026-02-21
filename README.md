@@ -8,16 +8,6 @@
 
 Our agent follows a **Multi-Agent Architecture** powered by **Gemini 2.5 Flash** and executed within **Docker** sandboxes.
 
-User[User Input] --> Coordinator
-Coordinator --> Discovery[Discovery Node]
-Discovery --> Tester[Tester Node (Docker)]
-Tester --> Debugger[Debugger Node]
-Debugger --> Fixer[Fixer Node (Gemini 2.5)]
-Fixer --> Git[Git Node]
-Git --> Tester
-Tester --> Scoring[Scoring Node]
-Scoring --> Dashboard[React Dashboard]
-
 ![Architecture Diagram](docs/Architecture_diagram_the_arbiter.png)
 ![Agent Workflow Diagram](docs/Agent_workflow_the_arbiter.png)
 
