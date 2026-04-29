@@ -4,6 +4,7 @@ __pycache__/
 temp_dummy_repo/
 temp_repos/
 backend/.env
+backend/.env.local
 frontend/.env
 frontend/.env.local
 venv/

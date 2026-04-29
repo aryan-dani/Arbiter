@@ -41,8 +41,8 @@ def git_node(state: AgentState) -> AgentState:
         print(f"Git: Could not open repo at {repo_path}: {e}")
         return state
 
-    author = Actor("AI Agent", "agent@rift.local")
-    committer = Actor("AI Agent", "agent@rift.local")
+    author = Actor("AI Agent", "agent@arbiter.local")
+    committer = Actor("AI Agent", "agent@arbiter.local")
 
     branch_name = _make_branch_name(team_name, leader_name)
     print(f"Git: Target branch = {branch_name}")
@@ -161,7 +161,7 @@ def git_node(state: AgentState) -> AgentState:
                         "title": f"[AI-AGENT] Autonomous CI/CD Fix — {branch_name}",
                         "body": (
                             "## AI-Agent Auto-Fix\n\n"
-                            "This pull request was created automatically by the **RIFT 2026 CI/CD Healing Agent**.\n\n"
+                            "This pull request was created automatically by **Arbiter**, an autonomous CI/CD healing agent.\n\n"
                             f"**Branch:** `{branch_name}`\n"
                             f"**Fixes Applied:** {len(state.get('fixes_applied', []))}\n\n"
                             "All changes were committed with the `[AI-AGENT]` prefix."

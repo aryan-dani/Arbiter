@@ -22,7 +22,7 @@ class AgentState(TypedDict):
     leader_name: str
     repo_path: str
     start_time: float # Timestamp
-    run_id: Optional[str] # Supabase Run ID
+    run_id: Optional[str]  # Persisted healing run UUID (PostgreSQL)
     
     # Forking Support
     upstream_url: str  # The original repo (read-only for agent)

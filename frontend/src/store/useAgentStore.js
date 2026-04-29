@@ -1,6 +1,5 @@
 import { create } from 'zustand';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API_BASE } from '../api';
 
 /* ─────────────────────── Utility ─────────────────────── */
 export function generateBranchName(teamName, leaderName) {
@@ -92,7 +91,7 @@ const useAgentStore = create((set, get) => ({
   updateFromLog: (log) => {
     const { _addLog, performance, runData } = get();
 
-    // Parse Supabase log entry
+    // Parse node log entry (from DB polling)
     const agentMap = {
       'discovery_node': 'DISCOVERY',
       'tester_node': 'TESTER',
@@ -362,7 +361,6 @@ const useAgentStore = create((set, get) => ({
       leaderName: '',
       isRunning: false,
       isStreaming: false,
-      runComplete: false,
       runComplete: false,
       runData: null,
       runId: null,

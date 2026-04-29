@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Zap, CheckCircle, Clock, Wrench } from 'lucide-react';
 import useAgentStore from '../store/useAgentStore';
-import { supabase } from '../supabaseClient';
+import { API_BASE } from '../api';
 
 export default function StatsRow() {
   const { stats, runData, runComplete, isRunning } = useAgentStore();
@@ -26,35 +26,30 @@ export default function StatsRow() {
     return () => clearInterval(interval);
   }, [isRunning, runData?.startedAt]);
 
-  // ── Fetch Global Stats ──
+  // ── Fetch global stats from backend API ──
   useEffect(() => {
     async function fetchGlobalStats() {
-      // Total Runs
-      const { count } = await supabase
-        .from('agent_runs')
-        .select('*', { count: 'exact', head: true });
-
-      // Last Run Status
-      const { data } = await supabase
-        .from('agent_runs')
-        .select('status')
-        .order('created_at', { ascending: false })
-        .limit(1);
-
-      setDbStats({
-        totalRuns: count || 0,
-        lastRunStatus: data?.[0]?.status || null
-      });
+      try {
+        const res = await fetch(`${API_BASE}/api/stats/summary`);
+        if (!res.ok) throw new Error(String(res.status));
+        const json = await res.json();
+        setDbStats({
+          totalRuns: json.total_runs ?? 0,
+          lastRunStatus: json.last_run_status ?? null,
+        });
+      } catch {
+        setDbStats({ totalRuns: 0, lastRunStatus: null });
+      }
     }
     fetchGlobalStats();
-  }, [runComplete]); // Re-fetch when a run completes
+  }, [runComplete]);
 
   const STATS = [
     {
       label: 'TOTAL RUNS',
       key: 'totalRuns',
       icon: Zap,
-      value: dbStats.totalRuns, // Use DB count
+      value: dbStats.totalRuns,
       color: 'text-arbiter-blue',
     },
     {
@@ -97,7 +92,6 @@ export default function StatsRow() {
           key={s.key}
           className="bg-arbiter-surface border border-arbiter-border px-4 py-4 flex flex-col gap-2"
         >
-          {/* Header */}
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-bold tracking-[0.12em] uppercase text-arbiter-text-dim font-mono">
               {s.label}
@@ -105,7 +99,6 @@ export default function StatsRow() {
             <s.icon className="w-4 h-4 text-arbiter-text-dim" />
           </div>
 
-          {/* Value */}
           <div className="flex items-end gap-2">
             <span className={`text-2xl lg:text-3xl font-black font-mono tracking-tight ${s.color}`}>
               {s.value}

@@ -81,7 +81,7 @@ function VisualTerminal() {
           <div className="w-2.5 h-2.5 rounded-full bg-arbiter-green" />
         </div>
         <span className="font-mono text-[11px] text-arbiter-text-dim tracking-wider">
-          arbiter@rift-2026:~$
+          arbiter@workspace:~$
         </span>
         <div className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-arbiter-green animate-pulse" />
@@ -307,10 +307,10 @@ export default function LandingPage() {
           {/* Badge */}
           <motion.div variants={fadeUp} className="flex items-center gap-2 mb-8">
             <span className="font-mono text-[10px] font-bold text-arbiter-red-bright border border-arbiter-red/30 px-2 py-0.5 tracking-[0.2em] bg-arbiter-red/5">
-              RIFT 2026
+              ARBITER
             </span>
             <span className="font-mono text-[10px] text-arbiter-text-dim tracking-[0.15em]">
-              AI/ML DEVOPS AUTOMATION TRACK
+              AUTONOMOUS CI/CD HEALING
             </span>
           </motion.div>
 
@@ -459,8 +459,8 @@ export default function LandingPage() {
               <div className="border border-arbiter-red/40 bg-arbiter-red/5 px-4 py-2 flex items-center gap-2">
                 <Shield className="w-4 h-4 text-arbiter-red-bright" />
                 <div>
-                  <div className="font-mono text-[11px] font-bold text-arbiter-red-bright tracking-widest">RIFT 2026</div>
-                  <div className="text-[9px] text-arbiter-text-dim">Hackathon Entry</div>
+                  <div className="font-mono text-[11px] font-bold text-arbiter-red-bright tracking-widest">ARBITER</div>
+                  <div className="text-[9px] text-arbiter-text-dim">Autonomous agent</div>
                 </div>
               </div>
               <div className="border border-arbiter-border bg-arbiter-surface px-4 py-2 flex items-center gap-2">
@@ -492,7 +492,7 @@ export default function LandingPage() {
             <span className="font-mono font-bold text-[12px] tracking-tight text-arbiter-text">THE ARBITER</span>
           </div>
           <span className="font-mono text-[10px] text-arbiter-text-dim tracking-wider text-center sm:text-right">
-            © 2026 RIFT HACKATHON · AI/ML DEVOPS AUTOMATION
+            © 2026 Arbiter · Autonomous CI/CD healing
           </span>
         </div>
       </footer>

@@ -8,10 +8,10 @@ def fixer_node(state: AgentState) -> AgentState:
     """
     Generates code fixes and applies them to the repository.
     """
-    from backend.utils.supabase_manager import SupabaseManager
-    
+    from backend.utils.db_manager import DbManager
+
     print("Fixer Node Started...")
-    supabase = SupabaseManager()
+    db = DbManager()
 
     
     analysis = state.get('current_analysis')
@@ -45,7 +45,7 @@ def fixer_node(state: AgentState) -> AgentState:
     traceback_file = analysis.get('traceback_file')
     last_exit_code = state.get('last_exit_code', 0)
     
-    # RIFT "Final Boss" Logic:
+    # Final pass: complex multi-file reconciliation logic:
     # If Exit Code is 2 (Pytest Collection Error), the traceback might point to the *last* file checked,
     # but the syntax error could be in *any* file. In this case, we TRUST the LLM/Analyzer's file choice
     # and bypass the strict filename matching.
@@ -140,11 +140,11 @@ def fixer_node(state: AgentState) -> AgentState:
 
 
     # ── AGENT MEMORY: Check for previous successful fixes ──
-    reference_fix = supabase.get_previous_fix(
+    reference_fix = db.get_previous_fix(
         bug_type=analysis.get('bug_type', ''),
-        description=analysis.get('description', '')
+        description=analysis.get('description', ''),
     )
-    
+
     reference_fix_prompt = ""
     if reference_fix:
         print(f"Agent Memory: Found reference fix from a previous run!")
@@ -157,7 +157,7 @@ def fixer_node(state: AgentState) -> AgentState:
         )
 
     prompt = f"""
-    You are "The Arbiter" — an Elite Autonomous DevOps Engineer for the RIFT 2026 Hackathon.
+    You are "The Arbiter" — an Elite Autonomous DevOps Engineer specializing in autonomous CI/CD repair.
     
     Context:
     File: {file_relative_path}
@@ -279,7 +279,7 @@ def fixer_node(state: AgentState) -> AgentState:
         import shutil
         import tempfile
         try:
-            backup_dir = os.path.join(tempfile.gettempdir(), "RIFT_BACKUPS")
+            backup_dir = os.path.join(tempfile.gettempdir(), "ARBITER_BACKUPS")
             os.makedirs(backup_dir, exist_ok=True)
             backup_file = os.path.join(backup_dir, f"{os.path.basename(file_full_path)}.{int(time.time())}.bak")
             shutil.copy2(file_full_path, backup_file)
@@ -314,8 +314,7 @@ def fixer_node(state: AgentState) -> AgentState:
         state['current_step'] = "FIX_APPLIED"
         print(f"Fix applied to {file_relative_path}")
         
-        # Log to Supabase
-        supabase.update_node_status(
+        db.update_node_status(
             run_id=state.get('run_id'),
             node="Fixer",
             log_type="FIX_APPLIED",

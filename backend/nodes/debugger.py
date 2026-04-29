@@ -272,7 +272,7 @@ def debugger_node(state: AgentState) -> AgentState:
         file_list_str = ", ".join(file_list)
 
         prompt = f"""
-    You are "The Arbiter" — an Elite Autonomous DevOps Engineer for the RIFT 2026 Hackathon.
+    You are "The Arbiter" — an Elite Autonomous DevOps Engineer specializing in autonomous CI/CD repair.
     Context: You are running on a Windows host but testing in a Linux container.
 
     YOUR MISSION:

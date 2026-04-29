@@ -47,7 +47,7 @@ export default function TerminalLog() {
             <span className="w-3 h-3 rounded-full bg-green-500" />
           </div>
           <span className="text-[12px] font-mono text-arbiter-text-dim">
-            arbiter@rift-2026:~$
+            arbiter@workspace:~$
           </span>
         </div>
 

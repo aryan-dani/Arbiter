@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "arbiter-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.97.0",
     "framer-motion": "^12.34.2",
     "lucide-react": "^0.574.0",
     "react": "^19.2.0",

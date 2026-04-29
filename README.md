@@ -1,91 +1,74 @@
-# RIFT 2026: Autonomous CI/CD Healing Agent
+# Arbiter — Autonomous CI/CD healing agent
 
-**Track:** AI/ML - Agentic Systems
-
----
-
-## 🏗️ Architecture
-
-Our agent follows a **Multi-Agent Architecture** powered by **Gemini 2.5 Flash** and executed within **Docker** sandboxes.
+Multi-agent workflow (discovery → test → debug → fix → git → score) orchestrated with **LangGraph**, powered by **Google Gemini**.
 
 ![Architecture Diagram](docs/Architecture_diagram_the_arbiter.png)
-![Agent Workflow Diagram](docs/Agent_workflow_the_arbiter.png)
+![Agent workflow](docs/Agent_workflow_the_arbiter.png)
 
+## Architecture overview
 
-### Core Components
-1. **Discovery Node**: Clones repo, detects stack (Python/Node), maps file structure.
-2. **Tester Node**: Spins up ephemeral Docker containers to run `pytest` safely.
-3. **Debugger Node**: Analyzes logs using **Anchor Resolution** (Traceback vs Function Maps) to find the Source of Truth.
-4. **Fixer Node**: Uses **Agent Memory** (Supabase) and strict Context Locking to generate one-shot fixes.
-5. **Git Node**: Commits fixes with `[AI-AGENT]` prefix and strictly formatted branch names.
+| Component        | Responsibility |
+|-----------------|----------------|
+| Discovery       | Clone/fork repo, detect stack and tests |
+| Tester          | Run tests inside Docker sandboxes |
+| Debugger        | Analyze failures with Gemini |
+| Fixer           | Generate patches; optionally uses PostgreSQL-backed run history (“agent memory”) |
+| Git             | Branch, commit, open PR |
+| Scoring         | Final score and timeline |
 
----
+## Tech stack
 
-## 🛠️ Tech Stack
+- **Frontend**: React (Vite), TailwindCSS
+- **Backend**: FastAPI, Python 3.11+, LangGraph
+- **AI**: Google Gemini
+- **Data**: PostgreSQL via `DATABASE_URL` (runs, node logs); optional — logging is disabled without it
+- **Sandbox**: Docker Desktop (for tester node)
 
-- **Frontend**: React 18, Vite, TailwindCSS (Dark Mode Premium UI)
-- **Backend**: FastAPI, Python 3.11, LangGraph
-- **AI Model**: Google Gemini 2.5 Flash
-- **Database**: Supabase (Real-time logs & History)
-- **Infrastructure**: Docker (Sandboxing), Render/Vercel (Deployment)
+## Local setup
 
----
+**Prerequisites:** Docker Desktop running, Python 3.11+, Node 18+, a Gemini API key.
 
-## 🐛 Supported Bug Types
+### Backend
 
-The agent autonomously detects and fixes:
-- ✅ **LOGIC**: Incorrect boolean logic, math errors, off-by-one errors.
-- ✅ **SYNTAX**: Missing colons, indentations, invalid syntax.
-- ✅ **TYPE_ERROR**: String vs Integer mismatches, NoneType handling.
-- ✅ **IMPORT**: Missing modules or incorrect function imports.
-- ✅ **LINTING**: Flake8 compliance (unused imports, whitespace).
+From the **repository root**:
 
----
-
-## ⚙️ Installation & Setup
-
-### Prerequisites
-- Docker Desktop (Running)
-- Python 3.11+
-- Node.js 18+
-- Gemini API Key
-
-### 1. Clone & Configure
 ```bash
-git clone https://github.com/aryan-dani/RIFT_2026_Let-s_See.git
-cd RIFT_2026_Let-s_See
-
-# Backend Setup
-cd backend
-python -m venv venv
-source venv/bin/activate  # or venv\Scripts\activate on Windows
-pip install -r requirements.txt
-cp .env.example .env  # Add GOOGLE_API_KEY
+python -m venv backend/venv
+# Windows: backend\venv\Scripts\activate   |  Linux/macOS: source backend/venv/bin/activate
+pip install -r backend/requirements.txt
+cp backend/.env.example backend/.env
+# Edit backend/.env — set GOOGLE_API_KEY and optionally DATABASE_URL, GITHUB_TOKEN
+uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### 2. Frontend Setup
+### Frontend
+
 ```bash
-cd ../frontend
+cd frontend
 npm install
-cp .env.example .env  # Add VITE_API_URL
+cp .env.example .env
+# Set VITE_API_URL to your API base, e.g. http://localhost:8000
 npm run dev
 ```
 
-### 3. Run Agent
-1. Start Backend: `uvicorn main:app --reload`
-2. Open Dashboard: `http://localhost:5173`
-3. Enter Target Repo URL and Click **Run Agent**.
+### PostgreSQL (`DATABASE_URL`)
 
----
+Use any managed Postgres (e.g. **Amazon RDS**) or local Postgres. On first startup the API creates tables `agent_runs` and `node_logs`.
 
-## ⚠️ Known Limitations
-- Currently optimized for Python (`pytest`) repositories.
-- Docker requires 4GB+ RAM for stable execution.
-- Rate limits apply based on Gemini API tier.
+Example URI:
 
----
+`postgresql://USER:PASSWORD@HOST:5432/DATABASE`
 
-## 👥 Team Members
+### CORS (production)
 
-- **[Leader Name]**: Aryan Dani [Full Stack & AI Logic]
-- **[Member Name]**: Himali Dandavate [Frontend & Design]
+Set `CORS_ORIGINS` to a comma-separated list of allowed browser origins (e.g. `https://your-domain.com`).
+
+## Deploy on AWS EC2 (overview)
+
+See **[docs/DEPLOY_EC2.md](docs/DEPLOY_EC2.md)** for systemd, RDS, nginx, TLS, and environment variables.
+
+## Limitations
+
+- Optimized primarily for Python (`pytest`) repositories; Node support is experimental.
+- Docker needs sufficient RAM (4GB+ recommended).
+- Gemini API quota applies per your GCP account.

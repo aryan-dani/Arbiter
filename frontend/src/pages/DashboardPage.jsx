@@ -1,44 +1,35 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '../supabaseClient';
+import { useEffect, useState, useCallback } from 'react';
 import {
     GitBranch, Clock, CheckCircle, XCircle, AlertTriangle,
-    ExternalLink, Calendar, Search, Filter
+    ExternalLink
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { API_BASE } from '../api';
 
 export default function DashboardPage() {
     const [runs, setRuns] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState('ALL'); // ALL, SUCCESS, FAILED
+    const [filter, setFilter] = useState('ALL');
+
+    const fetchRuns = useCallback(async () => {
+        setLoading(true);
+        try {
+            const res = await fetch(`${API_BASE}/api/runs`);
+            if (res.ok) {
+                const data = await res.json();
+                setRuns(Array.isArray(data) ? data : []);
+            }
+        } catch {
+            setRuns([]);
+        }
+        setLoading(false);
+    }, []);
 
     useEffect(() => {
         fetchRuns();
-
-        // Subscribe to new runs
-        const channel = supabase
-            .channel('dashboard_runs')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'agent_runs' }, () => {
-                fetchRuns();
-            })
-            .subscribe();
-
-        return () => {
-            supabase.removeChannel(channel);
-        };
-    }, []);
-
-    const fetchRuns = async () => {
-        setLoading(true);
-        const { data, error } = await supabase
-            .from('agent_runs')
-            .select('*')
-            .order('created_at', { ascending: false });
-
-        if (!error) {
-            setRuns(data);
-        }
-        setLoading(false);
-    };
+        const iv = setInterval(fetchRuns, 5000);
+        return () => clearInterval(iv);
+    }, [fetchRuns]);
 
     const filteredRuns = runs.filter(r => {
         if (filter === 'ALL') return true;
@@ -61,7 +52,6 @@ export default function DashboardPage() {
 
     return (
         <div className="p-6 max-w-7xl mx-auto">
-            {/* Header */}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
                 <div>
                     <h1 className="text-2xl font-bold font-mono text-arbiter-text tracking-tight">Run History</h1>
@@ -70,7 +60,6 @@ export default function DashboardPage() {
                     </p>
                 </div>
 
-                {/* Filters */}
                 <div className="flex items-center gap-2 bg-arbiter-surface border border-arbiter-border p-1 rounded-md">
                     {['ALL', 'SUCCESS', 'FAILED'].map(f => (
                         <button
@@ -105,31 +94,26 @@ export default function DashboardPage() {
                                 transition={{ delay: i * 0.05 }}
                                 className="group flex flex-col md:flex-row items-center gap-4 bg-arbiter-surface border border-arbiter-border p-4 hover:border-arbiter-border-subtle transition-all"
                             >
-                                {/* Status Icon */}
                                 <div className={`w-10 h-10 flex items-center justify-center rounded-full border ${statusClass}`}>
                                     <StatusIcon className="w-5 h-5" />
                                 </div>
 
-                                {/* Info */}
                                 <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
 
-                                    {/* Repo / Team */}
                                     <div className="col-span-1">
                                         <div className="text-[14px] font-bold text-arbiter-text truncate">
-                                            {run.team_name || 'Unknown Team'}
+                                            {run.team_name || run.run_name || 'Unknown'}
                                         </div>
                                         <div className="text-[11px] text-arbiter-text-dim truncate font-mono mt-0.5">
-                                            {run.target_repo?.replace('https://github.com/', '')}
+                                            {(run.target_repo || '').replace('https://github.com/', '')}
                                         </div>
                                     </div>
 
-                                    {/* Branch */}
                                     <div className="flex items-center gap-2 text-arbiter-text-muted">
                                         <GitBranch className="w-3.5 h-3.5" />
                                         <span className="text-[12px] font-mono truncate">{run.branch_name || '—'}</span>
                                     </div>
 
-                                    {/* Stats */}
                                     <div className="flex items-center gap-6">
                                         <div>
                                             <div className="text-[9px] text-arbiter-text-dim uppercase tracking-wider">SCORE</div>
@@ -140,12 +124,11 @@ export default function DashboardPage() {
                                         <div>
                                             <div className="text-[9px] text-arbiter-text-dim uppercase tracking-wider">DURATION</div>
                                             <div className="font-mono text-[12px] text-arbiter-text-muted">
-                                                {run.duration ? `${Math.round(run.duration)}s` : '—'}
+                                                {run.duration != null ? `${Math.round(Number(run.duration))}s` : '—'}
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* Actions */}
                                     <div className="flex items-center justify-end gap-3">
                                         {run.pr_url && (
                                             <a
@@ -159,7 +142,7 @@ export default function DashboardPage() {
                                             </a>
                                         )}
                                         <div className="text-[10px] text-arbiter-text-dim font-mono">
-                                            {new Date(run.created_at).toLocaleDateString()}
+                                            {run.created_at ? new Date(run.created_at).toLocaleDateString() : ''}
                                         </div>
                                     </div>
 

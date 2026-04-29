@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '../supabaseClient';
-import useAgentStore from '../store/useAgentStore';
+import { API_BASE } from '../api';
 
+/**
+ * Polls backend for node logs while a run is active (replaces Supabase Realtime).
+ */
 export function useAgentRealtime(runId) {
     const [logs, setLogs] = useState([]);
     const [status, setStatus] = useState('PENDING');
@@ -9,54 +11,47 @@ export function useAgentRealtime(runId) {
     useEffect(() => {
         if (!runId) return;
 
-        // Fetch initial logs
+        let cancelled = false;
+
         const fetchLogs = async () => {
-            const { data } = await supabase
-                .from('node_logs')
-                .select('*')
-                .eq('run_id', runId)
-                .order('created_at', { ascending: true });
+            try {
+                const [logsRes, runRes] = await Promise.all([
+                    fetch(`${API_BASE}/api/runs/${encodeURIComponent(runId)}/logs`),
+                    fetch(`${API_BASE}/api/runs/${encodeURIComponent(runId)}`),
+                ]);
+                if (cancelled) return;
 
-            if (data) setLogs(data);
-
-            const { data: runData } = await supabase
-                .from('agent_runs')
-                .select('status')
-                .eq('id', runId)
-                .single();
-
-            if (runData) setStatus(runData.status);
+                if (logsRes.ok) {
+                    const body = await logsRes.json();
+                    const list = Array.isArray(body?.logs) ? body.logs : [];
+                    const normalized = list.map((row) => {
+                        let content = row.content;
+                        if (typeof content === 'string') {
+                            try {
+                                content = JSON.parse(content);
+                            } catch {
+                                content = {};
+                            }
+                        }
+                        return { ...row, content: content ?? {} };
+                    });
+                    setLogs(normalized);
+                }
+                if (runRes.ok) {
+                    const row = await runRes.json();
+                    if (row?.status) setStatus(row.status);
+                }
+            } catch {
+                /* keep previous state */
+            }
         };
 
         fetchLogs();
-
-        // Subscription for logs
-        const logsChannel = supabase
-            .channel(`logs:${runId}`)
-            .on(
-                'postgres_changes',
-                { event: 'INSERT', schema: 'public', table: 'node_logs', filter: `run_id=eq.${runId}` },
-                (payload) => {
-                    setLogs((prev) => [...prev, payload.new]);
-                }
-            )
-            .subscribe();
-
-        // Subscription for status updates
-        const runChannel = supabase
-            .channel(`run:${runId}`)
-            .on(
-                'postgres_changes',
-                { event: 'UPDATE', schema: 'public', table: 'agent_runs', filter: `id=eq.${runId}` },
-                (payload) => {
-                    setStatus(payload.new.status);
-                }
-            )
-            .subscribe();
+        const interval = setInterval(fetchLogs, 1500);
 
         return () => {
-            supabase.removeChannel(logsChannel);
-            supabase.removeChannel(runChannel);
+            cancelled = true;
+            clearInterval(interval);
         };
     }, [runId]);
 
